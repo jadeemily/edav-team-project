@@ -1,7 +1,7 @@
 require("RCurl")
 require("rjson")
 
-for (i in 861:1973) {
+for (i in 1:1973) {
         myurl <- paste0("https://api.import.io/store/data/ba547b57-49f4-432a-a57e-61cea9cf8c7d/_query?",
                 "input/webpage/url=http%3A%2F%2Fwww.glassdoor.com%2FReviews%2Fnew-york-city-reviews-SRCH_IL.0%2C13_IM615_IP",
                 i,".htm&_user=94bbcc50-59b1-4168-9603-de5452fdedc6&_apikey=965MxL5U2UA5P18W4iNt7flPxtn%2FMr5RF%2",
