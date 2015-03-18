@@ -1,6 +1,7 @@
 require("RCurl")
-require("rjson")
+require("jsonlite")
 
+i <- 0
 for (i in 1:1973) {
         myurl <- paste0("https://api.import.io/store/data/ba547b57-49f4-432a-a57e-61cea9cf8c7d/_query?",
                 "input/webpage/url=http%3A%2F%2Fwww.glassdoor.com%2FReviews%2Fnew-york-city-reviews-SRCH_IL.0%2C13_IM615_IP",
