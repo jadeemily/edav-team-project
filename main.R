@@ -2,7 +2,8 @@
 require("rjson")
 
 ## Get employer data from Glassdoor
-## Issue:  the API only returns 10 rows
+## Issue:  the API only returns 10 rows.  
+## See get_companies.R 
 raw_data <- fromJSON("http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=31640&t.k=j3G7m4V1Dbg&action=employers&city=new%20%york&state=ny&userip=69.136.97.180&format=json&action=employers&pn=1", flatten=TRUE)
 df <- as.data.frame(raw_data$response[5])
 page_count <- raw_data$response$totalNumberOfPages

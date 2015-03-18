@@ -1,3 +1,5 @@
+require("RCurl")
+require("rjson")
 
 for (i in 861:1973) {
         myurl <- paste0("https://api.import.io/store/data/ba547b57-49f4-432a-a57e-61cea9cf8c7d/_query?",
