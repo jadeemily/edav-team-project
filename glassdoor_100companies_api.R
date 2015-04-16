@@ -1,9 +1,10 @@
 require("RCurl")
 require("jsonlite")
 
-## -------------------------------------------------
+## --------------------------------------------------------------------------------------------------
 ## Get employer data from Glassdoor
-## -------------------------------------------------
+## Glassdoor limits us to 100 pages per day, but this API provides much more data than web scraping
+## --------------------------------------------------------------------------------------------------
 myurl <- paste0("http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=31640&t.k=j3G7m4V1Dbg&",
                 "action=employers&city=new%20%york&state=ny&userip=69.136.97.180&format=json&action=employers&pn=1")
 raw_data <- fromJSON(myurl, flatten=TRUE)
