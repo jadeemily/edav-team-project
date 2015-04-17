@@ -36,5 +36,10 @@ data$employers.ceo.image.width <- NULL
 data <- rbind(data, data2[-1,])
 
 ## Write to a csv file
-write.csv(df, "gd_data.csv", row.names=TRUE)
+fn <- paste0("gd_data_", paste0(substr(Sys.time(),1,10), ".", 
+                                substr(Sys.time(),12,13), 
+                                substr(Sys.time(),15,16), 
+                                substr(Sys.time(),18,19),
+             ".csv"))
+write.csv(data, file=fn, row.names=TRUE)
 
