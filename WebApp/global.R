@@ -1,9 +1,16 @@
-library(RMySQL)
-library(dplyr)
-library(ggplot2)
-library(ggthemes)
-library(reshape2)
-library(data.table)
+#install.packages("RMySQL")
+#install.packages("dplyr")
+#install.packages("ggplot2")
+#install.packages("ggthemes")
+#install.packages("reshape2")
+#install.packages("data.table")
+
+require(shiny)
+require(shinydashboard)
+require(dplyr)
+require(ggplot2)
+require(ggthemes)
+require(reshape2)
 
 # Connect to the database -> Credentials:
 # Host : vichitra.cs.columbia.edu
@@ -11,23 +18,23 @@ library(data.table)
 # PWD : V1sual1zati0n
 # DB Name : glassdoor
 #mydb = dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='glassdoor', host='vichitra.cs.columbia.edu')
-#rs = dbSendQuery(mydb, "select * from CompanyData")  
+#rs = dbSendQuery(mydb, "select * from CompanyData")
 #companies = fetch(rs, n=-1)
 
-#rs = dbSendQuery(mydb, "select * from IndeedData")  
+#rs = dbSendQuery(mydb, "select * from IndeedData")
 #jobs = fetch(rs, n=-1)
 
+data <- read.table("Data/company_data_table", stringsAsFactors=FALSE, header=TRUE)
+
 rating_data <- data[,c(6,7,9,11,13,14,15)]
-names(rating_data) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values", 
+names(rating_data) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
                         "compensation_and_benefits", "career_opportunities", "work_life_balance")
 rating_data$culture_and_values <- as.numeric(rating_data$culture_and_values)
 rating_data$compensation_and_benefits <- as.numeric(rating_data$compensation_and_benefits)
 rating_data$career_opportunities <- as.numeric(rating_data$career_opportunities)
 rating_data$work_life_balance <- as.numeric(rating_data$work_life_balance)
 
-
-## User selects:  Overall Rating
-selection <- "overall_rating"
+## Overall Rating
 library(dplyr)
 by_industry <- group_by( rating_data, industry )
 top <- summarize( by_industry, sum(number_of_reviews), mean(overall_rating) )
@@ -36,9 +43,9 @@ top <- filter(top, number_of_reviews > 1000)
 top <- arrange( top, desc(rating) )
 top <- c(top[1:25,1])
 
-pdata <- suppressWarnings(inner_join(rating_data, top, by="industry", copy=TRUE)) 
+pdata <- suppressWarnings(inner_join(rating_data, top, by="industry", copy=TRUE))
 pdata <- melt(pdata, "industry", na.rm=TRUE)
-cdata <- cast(pdata, industry ~ variable, mean)
+cdata <- dcast(pdata, industry ~ variable, mean)
 cdata$number_of_reviews <- NULL
 cdata$overall_rating <- round(cdata$overall_rating, 1)
 cdata$culture_and_values <- round(cdata$culture_and_values, 1)
@@ -56,20 +63,21 @@ pdata$Industry <- factor(pdata$Industry, levels=unlist(top), ordered=TRUE)
 pdata <- transform(pdata, category2 = factor(paste(Industry, Rating)))
 pdata <- transform(pdata, category2 = reorder(category2, rank(Rating), ordered=TRUE))
 
-ggplot(pdata, aes(x=category2, y=Rating, fill=Category)) +
+overall_rating_plot <- ggplot(pdata, aes(x=category2, y=Rating, fill=Category)) +
         geom_bar(stat="identity", position=position_dodge(), aes(order=Rating)) +
-        #geom_text(data=pdata, aes(x=Industry, y=Rating, ymax=Rating, group=Category, label=Rating, vjust=1.8), 
-        geom_text(data=pdata, aes(x=category2, y=Rating, ymax=Rating, group=Category, label=Rating, vjust=1.8), 
+        geom_text(data=pdata, aes(x=category2, y=Rating, ymax=Rating, group=Category, label=Rating, vjust=1.8),
                   position=position_dodge(width=0.9), size=4) +
-        ggtitle("Most Highly Rated Industries Overall") +
+        #ggtitle("Most Highly Rated Industries Overall") +
         ylim(0, 5) +
-        theme_bw() +
+        theme_fivethirtyeight() +
         scale_colour_hue() +
-        facet_wrap(~ Industry, scale='free_x') + 
+        facet_wrap(~ Industry, scale='free_x') +
+        theme(legend.title=element_blank()) +
         theme(axis.title.y = element_blank()) +
         theme(axis.title.x = element_blank()) +
-        theme(axis.text.x = element_blank()) +
-        theme(axis.ticks = element_blank()) 
+        #theme(axis.text.y = element_blank()) +
+        theme(axis.text.x = element_blank())
+        #theme(axis.ticks = element_blank())
         #theme(strip.background = element_blank(), strip.text.x = element_blank())
-        #theme(axis.text.y=element_text(angle=0,hjust=1,vjust=.5,colour='gray50'))
-ggsave(file="overall_rating.svg")
+        #theme(axis.text.x=element_text(angle=0,hjust=1,vjust=.5,colour='gray25'))
+ggsave(overall_rating_plot, file="overall_rating.svg")
