@@ -7,7 +7,7 @@ dashboardPage(
         dashboardHeader(title = "indeedoor"),
         dashboardSidebar(
                 sidebarMenu(
-                        menuItem("Industries", tabName="industries", icon=icon("area-chart")),
+                        menuItem("Industries", tabName="industries", icon=icon("bar-chart")),
                         menuItem("Jobs", tabName="jobs", icon=icon("map-marker")),
                         menuItem("Skills", tabName="skills", icon=icon("asterisk"))
                 )
