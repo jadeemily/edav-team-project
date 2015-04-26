@@ -5,28 +5,20 @@
 #install.packages("reshape2")
 #install.packages("data.table")
 
-require(shiny)
-require(shinydashboard)
 require(dplyr)
 require(ggplot2)
 require(ggthemes)
 require(reshape2)
+require(RMySQL)
+#require(BH)
 
-# Connect to the database -> Credentials:
-# Host : vichitra.cs.columbia.edu
-# User : STATW4701
-# PWD : V1sual1zati0n
-# DB Name : glassdoor
-#mydb = dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='glassdoor', host='vichitra.cs.columbia.edu')
-#rs = dbSendQuery(mydb, "select * from CompanyData")
-#companies = fetch(rs, n=-1)
+mydb = dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='glassdoor', host='vichitra.cs.columbia.edu')
+rs = dbSendQuery(mydb, "select * from CompanyRatings")
+data = fetch(rs, n=-1)
 
-#rs = dbSendQuery(mydb, "select * from IndeedData")
-#jobs = fetch(rs, n=-1)
-
-data <- read.table("Data/company_data_table", stringsAsFactors=FALSE, header=TRUE)
-
-rating_data <- data[,c(6,7,9,11,13,14,15)]
+#data <- read.table("Data/company_data_table", stringsAsFactors=FALSE, header=TRUE)
+#rating_data <- data[,c(6,7,9,11,13,14,15)]
+rating_data <- data[,c(7,8,10,12,14,15,16)]
 names(rating_data) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
                         "compensation_and_benefits", "career_opportunities", "work_life_balance")
 rating_data$culture_and_values <- as.numeric(rating_data$culture_and_values)
@@ -67,7 +59,6 @@ overall_rating_plot <- ggplot(pdata, aes(x=category2, y=Rating, fill=Category)) 
         geom_bar(stat="identity", position=position_dodge(), aes(order=Rating)) +
         geom_text(data=pdata, aes(x=category2, y=Rating, ymax=Rating, group=Category, label=Rating, vjust=1.8),
                   position=position_dodge(width=0.9), size=4) +
-        #ggtitle("Most Highly Rated Industries Overall") +
         ylim(0, 5) +
         theme_fivethirtyeight() +
         scale_colour_hue() +
@@ -75,9 +66,5 @@ overall_rating_plot <- ggplot(pdata, aes(x=category2, y=Rating, fill=Category)) 
         theme(legend.title=element_blank()) +
         theme(axis.title.y = element_blank()) +
         theme(axis.title.x = element_blank()) +
-        #theme(axis.text.y = element_blank()) +
         theme(axis.text.x = element_blank())
-        #theme(axis.ticks = element_blank())
-        #theme(strip.background = element_blank(), strip.text.x = element_blank())
-        #theme(axis.text.x=element_text(angle=0,hjust=1,vjust=.5,colour='gray25'))
-ggsave(overall_rating_plot, file="overall_rating.svg")
+#ggsave(overall_rating_plot, file="overall_rating.svg")

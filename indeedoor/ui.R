@@ -1,7 +1,6 @@
 library(shiny)
 library(shinydashboard)
-install.packages("BH")
-library(BH)
+#library(BH)
 
 dashboardPage(
         skin="purple",
@@ -19,15 +18,15 @@ dashboardPage(
                         tabItem(tabName="industries",
                                 fluidRow(
                                         box(
-                                                width = 12,
-                                                radioButtons("plot2", "Sort by:",
-                                                             c("Overall rating",
-                                                               "Culture and values",
-                                                               "Compensation and benefits",
-                                                               "Career opportunities",
-                                                               "Work-life balance"),
-                                                             selected = "Overall rating",
-                                                             inline = TRUE)
+                                          width = 12,
+                                          radioButtons("plot2", "Sort by:",
+                                          c("Overall rating",
+                                            "Culture and values",
+                                            "Compensation and benefits",
+                                            "Career opportunities",
+                                            "Work-life balance"),
+                                            selected = "Overall rating",
+                                            inline = TRUE)
                                         )
                                 ),
                                 fluidRow(
