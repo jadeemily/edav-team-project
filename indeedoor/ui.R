@@ -1,6 +1,5 @@
 library(shiny)
 library(shinydashboard)
-#library(BH)
 
 dashboardPage(
         skin="purple",
@@ -19,22 +18,27 @@ dashboardPage(
                                 fluidRow(
                                         box(
                                           width = 12,
-                                          radioButtons("plot2", "Sort by:",
-                                          c("Overall rating",
-                                            "Culture and values",
-                                            "Compensation and benefits",
-                                            "Career opportunities",
-                                            "Work-life balance"),
-                                            selected = "Overall rating",
+                                          radioButtons("industry_plot", "Sort by:",
+                                          c("Overall rating + hiring data scientists" = "overall rating (and hiring data scientists)",
+                                            "Overall rating" = "overall rating",
+                                            "Culture and values" = "culture and values",
+                                            "Compensation and benefits" = "compensation and benefits",
+                                            "Career opportunities" = "career opportunities",
+                                            "Work-life balance" = "work-life balance"),
+                                            selected = "overall rating (and hiring data scientists)",
                                             inline = TRUE)
                                         )
                                 ),
                                 fluidRow(
                                         box(
-                                          "Industries ordered by overall rating",
-                                          title = "Glassdoor ratings by industry for companies in New York City",
+                                          title = textOutput("text1"),
                                           width = 12,
-                                          plotOutput("plot2", height="800px", width="1200px")
+                                          plotOutput("plot1", height="800px", width="1200px"),
+                                          withTags({
+                                                  a(href='http://www.glassdoor.com/index.htm',
+                                                    'powered by', img(src='http://www.glassdoor.com/static/img/api/glassdoor_logo_80.png'))
+
+                                          })
                                         )
                                 )
                         )

@@ -3,15 +3,25 @@ library(shinydashboard)
 
 function(input, output) {
 
-        output$plot2 <- renderPlot({
-                withProgress(message = 'Making plot...',
-                             value = 0, {
-                                     for (i in 1:15) {
-                                             incProgress(1/15)
-                                             Sys.sleep(0.25)
-                                     }
-                             })
-                singleton(overall_rating_plot)
+        output$text1 <- renderText({
+                paste("Top 25 industries in New York City by ", input$industry_plot)
+        })
+
+        output$plot1 <- renderPlot({
+                x <- input$industry_plot
+                if (x == "overall rating") {
+                        overall_rating_plot
+                } else if (x == "culture and values") {
+                        culture_rating_plot
+                } else if (x == "compensation and benefits") {
+                        compensation_rating_plot
+                } else if (x == "career opportunities") {
+                        career_opportunities_plot
+                } else if (x == "work-life balance") {
+                        worklife_plot
+                } else if (x == "overall rating (and hiring data scientists)") {
+                        hiring_plot
+                }
         })
 
 }
