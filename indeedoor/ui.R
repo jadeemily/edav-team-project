@@ -76,7 +76,6 @@ dashboardPage(
                                                 height = 800,
                                                 selectInput("selection", "Choose a city:",
                                                             choices = dbcities),
-                                                actionButton("update", "Change"),
                                                 hr(),
                                                 sliderInput("freq",
                                                             "Minimum Frequency:",
@@ -110,11 +109,14 @@ dashboardPage(
                                                 title = h3("Selection"),
                                                 width = 3,
                                                 height = 1000,
+                                                sliderInput("k",
+                                                            "Number of Clusters:",
+                                                            min = 2,  max = 8, value = 3),
                                                 selectInput("choice1", "Choose a Ratings Variable:",
                                                             choices = ratingsVariables, selected = 1),
                                                 selectInput("choice2", "Choose a Ratings Variable:",
                                                             choices = ratingsVariables, selected = 2),
-                                                actionButton("update", "Change"),
+                                              
                                                 hr(),
                                                 withTags({
                                                         a(href='http://www.glassdoor.com/index.htm',

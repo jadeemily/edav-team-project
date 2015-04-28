@@ -189,23 +189,16 @@ map_df <- left_join(all_indeed_data, gd_data[,c(31,7,8,10)], by="match_company_n
 ##--------------------------------------------------------------
 ## Prepare skills word cloud and friend recommendation analysis
 ##--------------------------------------------------------------
-cities <<- list("Atlanta"  = "indeed_Atlanta_datascientist_or.csv", "NYC" =  "indeed_NYC_datascientist_or.csv",
-                "Austin" = "indeed_Austin_datascientist_or.csv", "San Francisco" = 	"indeed_SF_datascientist_or.csv",
-                "Chicago" = "indeed_Chicago_datascientist_or.csv",	"San Jose" = "indeed_Sanjose_datascientist_or.csv",
-                "Washington DC" = "indeed_DC_datascientist_or.csv",	"Seattle" = 	"indeed_Seattle_datascientist_or.csv",
-                "Los Angeles" = "indeed_LA_datascientist_or.csv")
+dbcities <<- list("Atlanta"  = "Atlanta", "Austin" = "Austin", 
+                  "Boston" = "Boston", "Chicago" = "Chicago", "Houston" = "Houston",
+                  "NYC" =  "New York", "San Francisco" = "San Francisco", 
+                  "San Jose" = "San Jose", "Seattle" = "Seattle",
+                  "Los Angeles" = "Los Angeles", "Washington DC" = "Washington")
 
-
-dbcities <<- list("Atlanta"  = "Atlanta", "NYC" =  "New York",
-                  "Austin" = "Austin", "San Francisco" =   "San Francisco",
-                  "Chicago" = "Chicago",	"San Jose" = "San Jose",
-                  "Washington DC" = "Washington",	"Seattle" = 	"Seattle",
-                  "Los Angeles" = "Los Angeles")
-
-ratingsVariables1 <<-list("Overall Rating" = "overallRating", "Work Life Balance" = "workLifeBalanceRating",
-                          "Culture and Values" = "cultureAndValuesRating", "Senior Leadership" = "seniorLeadershipRating",
-                          "Compensation and Benefits" = "compensationAndBenefitsRating", "Career Opportunities" = "careerOppotunitiesRating",
-                          "CEO Approval" = "pctApprove")
+ratingsVariables1 <<-list("overallRating" = "Overall Rating",  "workLifeBalanceRating" = "Work Life Balance", 
+                          "cultureAndValuesRating"= "Culture and Values" , "seniorLeadershipRating" = "Senior Leadership",
+                          "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" , 
+                          "pctApprove" = "CEO Approval" )
 
 
 ratingsVariables <<-list("Overall Rating" = 1, "Work Life Balance" = 2,

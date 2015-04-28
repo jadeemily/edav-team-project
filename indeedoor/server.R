@@ -63,14 +63,14 @@ function(input, output, session) {
         # Define a reactive expression for the document term matrix
         terms <- reactive({
                 # Change when the "update" button is pressed...
-                input$update
+               
                 # ...but not for anything else
-                isolate({
+                
                         withProgress({
                                 setProgress(message = "Processing corpus...")
                                 getTermMatrix(input$selection)
                         })
-                })
+                
         })
 
         # Make the wordcloud drawing predictable during a session
@@ -90,18 +90,21 @@ function(input, output, session) {
                 # Change when the "update" button is pressed...
                 input$update
                 # ...but not for anything else
-                isolate({
+               
                         withProgress({
                                 setProgress(message = "Processing...")
-                                getRegressionAnalysis(as.numeric(input$choice1), as.numeric(input$choice2))
+                                getRegressionAnalysis(as.numeric(input$choice1), as.numeric(input$choice2), as.numeric(input$k))
                         })
-                })
+                
         })
 
         output$plot3 <- renderPlot({
                 v <- cl_terms()
-                ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
-                print(ggobj)
+                plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
+                     col = v$plotdata[["v3"]],
+                     pch = 20, cex = 3, xlab="Variable 1", ylab="Variable 2")
+              #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
+              #  print(ggobj)
         })
 
         output$clusters <- renderTable({

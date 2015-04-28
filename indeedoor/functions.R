@@ -64,7 +64,7 @@ getTermMatrix <- memoise(function(dbCity) {
         docs <- tm_map(docs, removeNumbers)
         docs <- tm_map(docs, removePunctuation)
         docs <- tm_map(docs, removeWords, stopwords("english"))
-        docs <- tm_map(docs, removeWords, c("experience", "will", "data", "analytics", "skills"))
+        docs <- tm_map(docs, removeWords, c("experience", "will", "data", "analytics", "skills", "analytic", "analysis", "big", "team", "scientist", "scientists", "engineers"))
         docs <- tm_map(docs, stripWhitespace)
         #  docs <- tm_map(docs, stemDocument)
 
@@ -76,7 +76,7 @@ getTermMatrix <- memoise(function(dbCity) {
 
 })
 
-getRegressionAnalysis <- memoise(function(variable1, variable2){
+getRegressionAnalysis <- memoise(function(variable1, variable2, k){
         #con <- getConnection()
         #rs = dbSendQuery(mydb, "select * from CompanyRatings")
         #data = fetch(rs, n=-1)
@@ -140,7 +140,7 @@ getRegressionAnalysis <- memoise(function(variable1, variable2){
         labels <- array(,4*nrow(clusteringdata))
         dim(labels) <- c(nrow(clusteringdata),4)
         mostimportant<-na.omit(mostimportant)
-        clusters<-kmeans(as.numeric(clusteringdata),3)
+        clusters<-kmeans(as.numeric(clusteringdata),k)
 
         x<-data.frame()
         (x<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], v3 = clusters$cluster))
@@ -148,15 +148,16 @@ getRegressionAnalysis <- memoise(function(variable1, variable2){
         print((clusteringdata[,variable1]))
         print(length(x))
         print(x[,1])
-        clustertable<-array(,3*nrow(clusteringdata))
-        dim(clustertable)<-c(nrow(clusteringdata),3)
+        clustertable<-array(,k*nrow(clusteringdata))
+        dim(clustertable)<-c(nrow(clusteringdata),k)
         j <- 1.0
-        for(i in 1:3)
+        for(i in 1:k)
         {
                 #  clustertable[,1] <- clusters$cluster[1:nrow(clusteringdata)]
                 indices <- which(clusters$cluster[1:nrow(clusteringdata)] == i)
-                clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], "                              ",
-                                                            mostimportant[indices,1], " and ", mostimportant[indices,2])
+                clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables1[mostimportant[indices,1]], 
+                                                            " and ", ratingsVariables1[mostimportant[indices,2]])
+                
                 if (j < length(indices)){
                         j <- length(indices)
                 }
@@ -165,3 +166,42 @@ getRegressionAnalysis <- memoise(function(variable1, variable2){
         list(plotdata=x, name=clustertable[1:j,])
 })
 
+
+theme_fivethirtyeight <- function(base_size = 13, base_family = "") {
+  theme_grey(base_size = base_size, base_family = base_family) %+replace%
+    theme(
+      
+      # Base elements which are not used directly but inherited by others
+      line =              element_line(colour = '#DADADA', size = 0.75, 
+                                       linetype = 1, lineend = "butt"),
+      rect =              element_rect(fill = "#F0F0F0", colour = "#F0F0F0", 
+                                       size = 0.5, linetype = 1),
+      text =              element_text(family = base_family, face = "plain",
+                                       colour = "#656565", size = base_size,
+                                       hjust = 0.5, vjust = 0.5, angle = 0, 
+                                       lineheight = 0.9),
+      
+      # Modified inheritance structure of text element
+      plot.title =        element_text(size = rel(1.5), family = '' , 
+                                       face = 'bold', hjust = -0.05, 
+                                       vjust = 1.5, colour = '#3B3B3B'),
+      axis.title.x =      element_blank(),
+      axis.title.y =      element_blank(),
+      axis.text =         element_text(),
+      
+      # Modified inheritance structure of line element
+      axis.ticks =        element_line(),
+      panel.grid.major =  element_line(),
+      panel.grid.minor =  element_blank(),
+      
+      # Modified inheritance structure of rect element
+      plot.background =   element_rect(),
+      panel.background =  element_rect(),
+      legend.key =        element_rect(colour = '#DADADA'),
+      
+      # Modifiying legend.position
+      legend.position = 'none',
+      
+      complete = TRUE
+    )
+}
