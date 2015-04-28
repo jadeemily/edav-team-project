@@ -78,8 +78,9 @@ getTermMatrix <- memoise(function(dbCity) {
 
 getRegressionAnalysis <- memoise(function(variable1, variable2){
         #con <- getConnection()
-        rs = dbSendQuery(mydb, "select * from CompanyRatings")
-        data = fetch(rs, n=-1)
+        #rs = dbSendQuery(mydb, "select * from CompanyRatings")
+        #data = fetch(rs, n=-1)
+        data <- master_gd_data  ## already have this in a data frame
         print(variable1)
         print(variable2)
         data <- subset(data, data$employers.industry != "")

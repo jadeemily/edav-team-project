@@ -16,6 +16,7 @@ source("functions.R")
 mydb <- dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='glassdoor', host='vichitra.cs.columbia.edu')
 rs <- dbSendQuery(mydb, "select * from CompanyRatings")
 data <- fetch(rs, n=-1)
+master_gd_data <- data
 gd_data <- data
 gd_data$match_company_name <- toupper(gd_data$employers.name)
 names(gd_data)[7] <- "industry"

@@ -125,7 +125,6 @@ dashboardPage(
                                         box(
                                                 title = h3("Cluster analysis of Glassdoor ratings"),
                                                 width = 9,
-                                                height = 1000,
                                                 plotOutput("plot3"),
                                                 h4("Clusters and top 2 important factors within industry"),
                                                 tableOutput("clusters")
