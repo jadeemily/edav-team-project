@@ -125,7 +125,7 @@ dashboardPage(
                                                 })
                                         ),
                                         box(
-                                                title = h3("Cluster analysis of Glassdoor ratings"),
+                                                title = h3("Cluster analysis of Glassdoor: What makes people recommend jobs?"),
                                                 width = 9,
                                                 plotOutput("plot3"),
                                                 h4("Clusters and top 2 important factors within industry"),
