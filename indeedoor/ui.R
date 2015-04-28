@@ -116,7 +116,7 @@ dashboardPage(
                                                             choices = ratingsVariables, selected = 1),
                                                 selectInput("choice2", "Choose a Ratings Variable:",
                                                             choices = ratingsVariables, selected = 2),
-                                              
+
                                                 hr(),
                                                 withTags({
                                                         a(href='http://www.glassdoor.com/index.htm',
@@ -125,7 +125,7 @@ dashboardPage(
                                                 })
                                         ),
                                         box(
-                                                title = h3("Cluster analysis of Glassdoor: What makes people recommend jobs?"),
+                                                title = h3("Cluster analysis of Glassdoor: What makes people recommend companies?"),
                                                 width = 9,
                                                 plotOutput("plot3"),
                                                 h4("Clusters and top 2 important factors within industry"),
