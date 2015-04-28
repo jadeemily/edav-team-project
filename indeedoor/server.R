@@ -87,13 +87,12 @@ function(input, output, session) {
         ## Cluster analysis of ratings
         ##--------------------------------------------
         cl_terms <- reactive({
-                # Change when the "update" button is pressed...
-                input$update
+                # Change when the "update" button is pressed..
                 # ...but not for anything else
                
                         withProgress({
                                 setProgress(message = "Processing...")
-                                getRegressionAnalysis(as.numeric(input$choice1), as.numeric(input$choice2), as.numeric(input$k))
+                                getRegressionAnalysis(input$choice1, input$choice2, as.numeric(input$k),input$typeofcluster)
                         })
                 
         })
@@ -102,7 +101,7 @@ function(input, output, session) {
                 v <- cl_terms()
                 plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
                      col = v$plotdata[["v3"]],
-                     pch = 20, cex = 3, xlab="Variable 1", ylab="Variable 2")
+                     pch = 20, cex = 3, xlab=ratingsVariables1[[input$choice1]], ylab=ratingsVariables1[[input$choice2]])
               #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
               #  print(ggobj)
         })
@@ -111,6 +110,22 @@ function(input, output, session) {
                 v <- cl_terms()
                 v$name
         })
-
+        
+        output$parameterControls1 <- renderUI({
+          xx <- getVariables(input$typeofcluster)
+          selectInput("choice1", "Choose a Ratings Variable:",
+                      choices = xx, selected = "Work Life Balance")
+     #     selectInput("choice2", "Choose a Ratings Variable:",
+      #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
+          
+          })
+      output$parameterControls2 <- renderUI({
+        xx <- getVariables(input$typeofcluster)
+        selectInput("choice2", "Choose a Ratings Variable:",
+                   choices = xx, selected = "Culture and Values")
+       #     selectInput("choice2", "Choose a Ratings Variable:",
+       #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
+       
+     })
 }
 

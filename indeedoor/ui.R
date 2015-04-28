@@ -112,10 +112,10 @@ dashboardPage(
                                                 sliderInput("k",
                                                             "Number of Clusters:",
                                                             min = 2,  max = 8, value = 3),
-                                                selectInput("choice1", "Choose a Ratings Variable:",
-                                                            choices = ratingsVariables, selected = 1),
-                                                selectInput("choice2", "Choose a Ratings Variable:",
-                                                            choices = ratingsVariables, selected = 2),
+                                                selectInput("typeofcluster", "Choose Analysis Variable",
+                                                            choices = analysisvariables, selected = 1),
+                                                uiOutput("parameterControls1"),
+                                                uiOutput("parameterControls2"),
 
                                                 hr(),
                                                 withTags({

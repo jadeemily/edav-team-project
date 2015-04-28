@@ -75,8 +75,19 @@ getTermMatrix <- memoise(function(dbCity) {
         #freqs <- colSums(as.matrix(dtm))
 
 })
+getVariables <-(function(choice)
+{
+  if(choice == 1)
+  {
+    reverseratingsVariables2
+  }
+  else
+  {
+    reverseratingsVariables1
+  }
+})
 
-getRegressionAnalysis <- memoise(function(variable1, variable2, k){
+getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         #con <- getConnection()
         #rs = dbSendQuery(mydb, "select * from CompanyRatings")
         #data = fetch(rs, n=-1)
@@ -112,9 +123,17 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k){
                         pctApprove <- fdata$employers.ceo.pctApprove
 
                         employer <- data.frame(id, name, website, industry, overallRating, ratingDescription, cultureAndValuesRating, seniorLeadershipRating, compensationAndBenefitsRating, careerOpportunitiesRating, workLifeBalanceRating, recommendToFriendRating, pctApprove)
-
+                        
+                        if(clustertype==2)
+                        {
                         fit <- lm(recommendToFriendRating ~ overallRating + workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
-
+                        }
+                        else
+                        {
+                        print("I am here")
+                        fit <- lm(overallRating ~ workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
+                        print(fit)  
+                        }
                         fit2 <- fit
                         fit2$coefficients <- fit2$coefficients/max(fit2$coefficients)
 
@@ -155,9 +174,14 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k){
         {
                 #  clustertable[,1] <- clusters$cluster[1:nrow(clusteringdata)]
                 indices <- which(clusters$cluster[1:nrow(clusteringdata)] == i)
+                if(clustertype == 2)
+                {
                 clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables1[mostimportant[indices,1]], 
                                                             " and ", ratingsVariables1[mostimportant[indices,2]])
-                
+                }
+                else
+                {clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables2[mostimportant[indices,1]], 
+                                                             " and ", ratingsVariables2[mostimportant[indices,2]])}
                 if (j < length(indices)){
                         j <- length(indices)
                 }

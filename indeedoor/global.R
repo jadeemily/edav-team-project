@@ -201,8 +201,19 @@ ratingsVariables1 <<-list("overallRating" = "Overall Rating",  "workLifeBalanceR
                           "pctApprove" = "CEO Approval" )
 
 
-ratingsVariables <<-list("Overall Rating" = 1, "Work Life Balance" = 2,
-                         "Culture and Values" = 3, "Senior Leadership" = 4,
-                         "Compensation and Benefits" = 5, "Career Opportunities" = 6,
-                         "CEO Approval" = 7)
+reverseratingsVariables1 <<-list("Overall Rating" = "overallRating", "Work Life Balance" = "workLifeBalanceRating", 
+                          "Culture and Values" = "cultureAndValuesRating", "Senior Leadership" = "seniorLeadershipRating",
+                          "Compensation and Benefits" = "compensationAndBenefitsRating", "Career Opportunities" = "careerOpportunitiesRating", 
+                          "CEO Approval" = "pctApprove")
 
+ratingsVariables2 <<-list("workLifeBalanceRating" = "Work Life Balance", 
+                          "cultureAndValuesRating"= "Culture and Values" , "seniorLeadershipRating" = "Senior Leadership",
+                          "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" , 
+                          "pctApprove" = "CEO Approval" )
+
+reverseratingsVariables2 <<-list("Work Life Balance" = "workLifeBalanceRating", 
+                                 "Culture and Values" = "cultureAndValuesRating", "Senior Leadership" = "seniorLeadershipRating",
+                                 "Compensation and Benefits" = "compensationAndBenefitsRating", "Career Opportunities" = "careerOpportunitiesRating", 
+                                 "CEO Approval" = "pctApprove")
+
+analysisvariables <<-list("Overall Rating" = 1, "Recommend to Friends Rating" = 2)
