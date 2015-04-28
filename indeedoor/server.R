@@ -102,6 +102,7 @@ function(input, output, session) {
                 plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
                      col = v$plotdata[["v3"]],
                      pch = 20, cex = 3, xlab=ratingsVariables1[[input$choice1]], ylab=ratingsVariables1[[input$choice2]])
+               legend('topright', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
               #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
               #  print(ggobj)
         })
@@ -114,7 +115,7 @@ function(input, output, session) {
         output$parameterControls1 <- renderUI({
           xx <- getVariables(input$typeofcluster)
           selectInput("choice1", "Choose a Ratings Variable:",
-                      choices = xx, selected = "Work Life Balance")
+                      choices = xx, selected = "cultureAndValuesRating")
      #     selectInput("choice2", "Choose a Ratings Variable:",
       #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
           
@@ -122,7 +123,7 @@ function(input, output, session) {
       output$parameterControls2 <- renderUI({
         xx <- getVariables(input$typeofcluster)
         selectInput("choice2", "Choose a Ratings Variable:",
-                   choices = xx, selected = "Culture and Values")
+                   choices = xx, selected = "pctApprove")
        #     selectInput("choice2", "Choose a Ratings Variable:",
        #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
        
