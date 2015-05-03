@@ -90,20 +90,26 @@ function(input, output, session) {
                 # Change when the "update" button is pressed..
                 # ...but not for anything else
                
-                        withProgress({
-                                setProgress(message = "Processing...")
-                                getRegressionAnalysis(input$choice1, input$choice2, as.numeric(input$k),input$typeofcluster)
-                        })
+                withProgress({
+                        setProgress(message = "Processing...")
+                        getRegressionAnalysis(input$choice1, input$choice2, as.numeric(input$k),input$typeofcluster)
+                })
                 
         })
 
         output$plot3 <- renderPlot({
+          
                 v <- cl_terms()
+                if(!is.null(v)){
+                  print(paste0("V1 ", v$plotdata[["v1"]]))
+                  print(paste0("V2 ", v$plotdata[["v2"]]))
+                  print(paste0("V3 ", v$plotdata[["v3"]]))
                 plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
                      col = v$plotdata[["v3"]],
                      pch = 20, cex = 3, xlab=ratingsVariables1[[input$choice1]], ylab=ratingsVariables1[[input$choice2]])
                legend('topright', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
-              #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
+                }
+               #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
               #  print(ggobj)
         })
 
