@@ -39,7 +39,6 @@ prepIndustryPlot <- function(top_rated, ratings, rating_type) {
 }
 
 getConnection <- function(group) {
-
         if (!exists('.connection', where=.GlobalEnv)) {
                 .connection <<- dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='glassdoor', host='vichitra.cs.columbia.edu')
         } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
@@ -79,7 +78,7 @@ getTermMatrix <- memoise(function(dbCity) {
 
 })
 
-getVariables <- function(choice)
+getVariables <-(function(choice)
 {
   if(choice == 1)
   {
@@ -89,15 +88,15 @@ getVariables <- function(choice)
   {
     reverseratingsVariables1
   }
-}
+})
 
 getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         #con <- getConnection()
         #rs = dbSendQuery(mydb, "select * from CompanyRatings")
         #data = fetch(rs, n=-1)
         data <- master_gd_data  ## already have this in a data frame
-        print(variable1)
-        print(variable2)
+        #print(variable1)
+        #print(variable2)
         data <- subset(data, data$employers.industry != "")
         industries <-unique(data$employers.industry)
         largedata<-subset(data, data$employers.numberOfRatings > 40)
@@ -110,7 +109,7 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                 fdata <- subset(largedata, data$employers.industry == i)
                 if (nrow(fdata) > 40)
                 {
-                        print (paste0("Industry is ", i, " and the number of companies is ", nrow(fdata)))
+                        #print (paste0("Industry is ", i, " and the number of companies is ", nrow(fdata)))
                         id <- fdata$employers.id
                         name <- fdata$employers.name
                         website <- fdata$employers.website
@@ -130,13 +129,13 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
 
                         if(clustertype==2)
                         {
+                      #  fit <- lm(fdata$employers.recommendToFriendRating ~ fdata$employers.overallRating + fdata$employers.workLifeBalanceRating + fdata$employers.cultureAndValuesRating + fdata$employers.seniorLeadershipRating + fdata$employers.compensationAndBenefitsRating + fdata$employers.careerOpportunitiesRating + fdata$employers.ceo.pctApprove -1 , data=fdata)
                         fit <- lm(recommendToFriendRating ~ overallRating + workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
                         }
                         else
                         {
-                        #print("I am here")
-                        fit <- lm(overallRating ~ workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
-                        print(fit)
+                      #    fit <- lm(fdata$employers.overallRating ~ fdata$employers.workLifeBalanceRating + fdata$employers.cultureAndValuesRating + fdata$employers.seniorLeadershipRating + fdata$employers.compensationAndBenefitsRating + fdata$employers.careerOpportunitiesRating + fdata$employers.ceo.pctApprove -1 , data=fdata)
+                          fit <- lm(overallRating ~ workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
                         }
                         fit2 <- fit
                         fit2$coefficients <- fit2$coefficients/max(fit2$coefficients)
@@ -156,24 +155,20 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
 
                 }
         }
-        labels <- array(,4*nrow(nameofindustry))
-        dim(labels) <- c(nrow(nameofindustry),4)
-        #clusteringdata<-clusteringdata[2:nrow(clusteringdata),]
         clusteringdata<-na.omit(clusteringdata)
-        labels <- array(,4*nrow(clusteringdata))
-        dim(labels) <- c(nrow(clusteringdata),4)
         mostimportant<-na.omit(mostimportant)
-        clusters<-kmeans(as.numeric(clusteringdata),k)
+        clusters<-kmeans(clusteringdata,k)
+
+        print("Clusters are printed here:")
+        print(clusters$cluster)
 
         x<-data.frame()
         (x<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], v3 = clusters$cluster))
         x<-x[1:nrow(clusteringdata),]
-        print((clusteringdata[,variable1]))
-        print(length(x))
-        print(x[,1])
         clustertable<-array(,k*nrow(clusteringdata))
         dim(clustertable)<-c(nrow(clusteringdata),k)
         j <- 1.0
+
         for(i in 1:k)
         {
                 #  clustertable[,1] <- clusters$cluster[1:nrow(clusteringdata)]
@@ -190,14 +185,13 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                         j <- length(indices)
                 }
         }
-
         list(plotdata=x, name=clustertable[1:j,])
 })
 
-getJobs <- function(start = '', q='data+scientist', l=10199) {
+getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
         finished <- FALSE
         while (finished == FALSE) {
-                myurl <- constructIndeedURL(start, q, l)
+                myurl <- constructIndeedURL(start, q, l, r)
                 ijobs <- suppressWarnings(fromJSON(myurl, flatten=TRUE))
                 end   <- ijobs$end
                 num_jobs <- ijobs$totalResults
@@ -218,7 +212,7 @@ getJobs <- function(start = '', q='data+scientist', l=10199) {
                 #indeedApply <- i$indeedApply
                 posted_at <- i$formattedRelativeTime
                 page <- data.frame(jobtitle, posted_at, company, location,
-                           posting_date, stringsAsFactors=FALSE)
+                           posting_date, expired, stringsAsFactors=FALSE)
                 if (end > 25) {
                         alljobs <- rbind(alljobs, page)
                 } else {
@@ -230,6 +224,8 @@ getJobs <- function(start = '', q='data+scientist', l=10199) {
                         finished <- TRUE
                 }
         }
+        alljobs <- filter(alljobs, expired == FALSE)
+        alljobs$expired <- NULL
         alljobs$match_company_name <- toupper(alljobs$company)
         alljobs <- left_join(alljobs, gd_data[,c(31,7,8,10)], by="match_company_name")
         alljobs$match_company_name <- NULL
@@ -238,13 +234,13 @@ getJobs <- function(start = '', q='data+scientist', l=10199) {
         return(alljobs)
 }
 
-constructIndeedURL <- function(start, q, l) {
+constructIndeedURL <- function(start, q, l, r) {
         ## Indeed returns a maximum of 25 jobs per call
         paste0("http://api.indeed.com/ads/apisearch?publisher=8835055801144634",
                 "&q=", q,
                 "&l=", l,
                 "&sort=date",
-                "&radius=50",
+                "&radius=", r,
                 "&st=&jt=",
                 "&start=", start,
                 "&limit=25",

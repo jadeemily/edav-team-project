@@ -1,23 +1,23 @@
-##---------------------------
-## Generate industry plots
-##---------------------------
 require(dplyr)
+require(data.table)
 require(ggplot2)
 require(ggthemes)
 require(reshape2)
 require(RMySQL)
-library(tm)
-library(wordcloud)
-library(memoise)
+require(tm)
+require(wordcloud)
+require(memoise)
+require(RCurl)
+require(curl)
+require(jsonlite)
 
 source("functions.R")
 
 ## Read glassdoor data
 mydb <- dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='glassdoor', host='vichitra.cs.columbia.edu')
 rs <- dbSendQuery(mydb, "select * from CompanyRatings")
-data <- fetch(rs, n=-1)
-master_gd_data <- data
-gd_data <- data
+master_gd_data <- fetch(rs, n=-1)
+gd_data <- master_gd_data
 gd_data$match_company_name <- toupper(gd_data$employers.name)
 names(gd_data)[7] <- "industry"
 names(gd_data)[8] <- "number_of_reviews"
@@ -25,12 +25,19 @@ names(gd_data)[10] <- "overall_rating"
 
 ## Read indeed data
 rs <- dbSendQuery(mydb, "select * from IndeedAnalyticsByTopCities")
-all_indeed_data <- fetch(rs, n=-1)
+master_indeed_data <- fetch(rs, n=-1)
+all_indeed_data <- master_indeed_data
 names(all_indeed_data)[8] <- "job_title"
 all_indeed_data$match_company_name <- toupper(all_indeed_data$company)
 nyc_indeed_data <- filter(all_indeed_data, state %in% c('NY', 'NJ', 'CT'))
 
-## Inner join of glassdoor ratings with NY area data science jobs for one of the industry plots
+## Get current jobs directly from API:  restart indeedoor to refresh
+nyc_jobs_dt <- getJobs()
+
+##---------------------------
+## Generate industry plots
+##---------------------------
+## Inner join of glassdoor ratings with NY area data science jobs for one of the plots
 matches_only <- inner_join(gd_data, nyc_indeed_data, by="match_company_name")
 dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 15, 16, 39)])
 names(dsjobs_by_company) <- c("company_name", "industry", "number_of_reviews", "overall_rating",
@@ -75,7 +82,7 @@ names(top_hiring) <- c("industry", "number_of_reviews", "overall_rating", "cultu
                 "compensation_and_benefits", "career_opportunities", "work_life_balance")
 
 top <- filter( top, number_of_reviews >= 500 )
-top_hiring <- filter( top_hiring, number_of_reviews >= 10)
+top_hiring <- filter( top_hiring, number_of_reviews >= 500)
 
 ratings_culture      <- filter( top, culture_and_values > 0 )
 ratings_compensation <- filter( top, compensation_and_benefits > 0 )
@@ -189,31 +196,32 @@ map_df <- left_join(all_indeed_data, gd_data[,c(31,7,8,10)], by="match_company_n
 ##--------------------------------------------------------------
 ## Prepare skills word cloud and friend recommendation analysis
 ##--------------------------------------------------------------
-dbcities <<- list("Atlanta"  = "Atlanta", "Austin" = "Austin", 
+dbcities <<- list("Atlanta"  = "Atlanta", "Austin" = "Austin",
                   "Boston" = "Boston", "Chicago" = "Chicago", "Houston" = "Houston",
-                  "NYC" =  "New York", "San Francisco" = "San Francisco", 
+                  "NYC" =  "New York", "San Francisco" = "San Francisco",
                   "San Jose" = "San Jose", "Seattle" = "Seattle",
                   "Los Angeles" = "Los Angeles", "Washington DC" = "Washington")
 
-ratingsVariables1 <<-list("overallRating" = "Overall Rating",  "workLifeBalanceRating" = "Work Life Balance", 
+ratingsVariables1 <-list("overallRating" = "Overall Rating",  "workLifeBalanceRating" = "Work Life Balance",
                           "cultureAndValuesRating"= "Culture and Values" , "seniorLeadershipRating" = "Senior Leadership",
-                          "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" , 
+                          "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" ,
                           "pctApprove" = "CEO Approval" )
 
 
-reverseratingsVariables1 <<-list("Overall Rating" = "overallRating", "Work Life Balance" = "workLifeBalanceRating", 
+reverseratingsVariables1 <<-list("Overall Rating" = "overallRating", "Work Life Balance" = "workLifeBalanceRating",
                           "Culture and Values" = "cultureAndValuesRating", "Senior Leadership" = "seniorLeadershipRating",
-                          "Compensation and Benefits" = "compensationAndBenefitsRating", "Career Opportunities" = "careerOpportunitiesRating", 
+                          "Compensation and Benefits" = "compensationAndBenefitsRating", "Career Opportunities" = "careerOpportunitiesRating",
                           "CEO Approval" = "pctApprove")
 
-ratingsVariables2 <<-list("workLifeBalanceRating" = "Work Life Balance", 
+ratingsVariables2 <<-list("workLifeBalanceRating" = "Work Life Balance",
                           "cultureAndValuesRating"= "Culture and Values" , "seniorLeadershipRating" = "Senior Leadership",
-                          "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" , 
+                          "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" ,
                           "pctApprove" = "CEO Approval" )
 
-reverseratingsVariables2 <<-list("Work Life Balance" = "workLifeBalanceRating", 
+reverseratingsVariables2 <<-list("Work Life Balance" = "workLifeBalanceRating",
                                  "Culture and Values" = "cultureAndValuesRating", "Senior Leadership" = "seniorLeadershipRating",
-                                 "Compensation and Benefits" = "compensationAndBenefitsRating", "Career Opportunities" = "careerOpportunitiesRating", 
+                                 "Compensation and Benefits" = "compensationAndBenefitsRating", "Career Opportunities" = "careerOpportunitiesRating",
                                  "CEO Approval" = "pctApprove")
 
 analysisvariables <<-list("Overall Rating" = 1, "Recommend to Friends Rating" = 2)
+

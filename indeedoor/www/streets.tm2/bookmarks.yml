@@ -1,0 +1,7 @@
+- place_name: 5 Washington Sq N, New York, 10003, New York, United States
+  zoom: 14
+  center: 
+    - 40.7313
+    - -73.9957
+  tags: 
+    - userbookmark
