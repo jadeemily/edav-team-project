@@ -43,6 +43,12 @@ dashboardPage(
 
                                           })
                                         )
+                                ),
+                                fluidRow(
+                                        box(
+                                          width = 12,
+                                          title = h3("Data science jobs in the New York City metro area"),
+                                          dataTableOutput('joblist'))
                                 )
                         ),
 
@@ -125,7 +131,7 @@ dashboardPage(
                                                 })
                                         ),
                                         box(
-                                                title = h3("Cluster analysis of Glassdoor: What makes people recommend companies?"),
+                                                title = h3("Glassdoor ratings: What makes people recommend companies?"),
                                                 width = 9,
                                                 plotOutput("plot3"),
                                                 h4("Clusters and top 2 important factors within industry"),
@@ -135,9 +141,10 @@ dashboardPage(
                         )
                 ),
 
-                tags$head(
-                        tags$link(rel = "stylesheet", type="text/css", href="custom.css")
-                )
+                tags$head(tags$link(rel = "stylesheet", type="text/css", href="custom.css"))
+                #tags$head(tags$link(rel = "text/javascript", src="http://gdc.indeed.com/ads/apiresults.js"))
+
+                #tags$head(includeScript("http://gdc.indeed.com/ads/apiresults.js"))
         )
 )
 

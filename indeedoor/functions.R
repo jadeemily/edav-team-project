@@ -1,3 +1,6 @@
+require(memoise)
+require(dplyr)
+
 prepIndustryPlot <- function(top_rated, ratings, rating_type) {
 
         pdata <- suppressWarnings( inner_join(ratings, top_rated, by="industry", copy=TRUE) )
@@ -64,7 +67,7 @@ getTermMatrix <- memoise(function(dbCity) {
         docs <- tm_map(docs, removeNumbers)
         docs <- tm_map(docs, removePunctuation)
         docs <- tm_map(docs, removeWords, stopwords("english"))
-        docs <- tm_map(docs, removeWords, c("experience", "will", "data", "analytics", "skills", "analytic", "analysis", "big", "team", "scientist", "scientists", "engineers"))
+        docs <- tm_map(docs, removeWords, c("experience", "will", "data", "analytics", "skills", "analytic", "analysis", "big", "team", "scientist", "scientists", "engineers", "work"))
         docs <- tm_map(docs, stripWhitespace)
         #  docs <- tm_map(docs, stemDocument)
 
@@ -75,7 +78,8 @@ getTermMatrix <- memoise(function(dbCity) {
         #freqs <- colSums(as.matrix(dtm))
 
 })
-getVariables <-(function(choice)
+
+getVariables <- function(choice)
 {
   if(choice == 1)
   {
@@ -85,7 +89,7 @@ getVariables <-(function(choice)
   {
     reverseratingsVariables1
   }
-})
+}
 
 getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         #con <- getConnection()
@@ -123,16 +127,16 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                         pctApprove <- fdata$employers.ceo.pctApprove
 
                         employer <- data.frame(id, name, website, industry, overallRating, ratingDescription, cultureAndValuesRating, seniorLeadershipRating, compensationAndBenefitsRating, careerOpportunitiesRating, workLifeBalanceRating, recommendToFriendRating, pctApprove)
-                        
+
                         if(clustertype==2)
                         {
                         fit <- lm(recommendToFriendRating ~ overallRating + workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
                         }
                         else
                         {
-                        print("I am here")
+                        #print("I am here")
                         fit <- lm(overallRating ~ workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
-                        print(fit)  
+                        print(fit)
                         }
                         fit2 <- fit
                         fit2$coefficients <- fit2$coefficients/max(fit2$coefficients)
@@ -176,11 +180,11 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                 indices <- which(clusters$cluster[1:nrow(clusteringdata)] == i)
                 if(clustertype == 2)
                 {
-                clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables1[mostimportant[indices,1]], 
+                clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables1[mostimportant[indices,1]],
                                                             " and ", ratingsVariables1[mostimportant[indices,2]])
                 }
                 else
-                {clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables2[mostimportant[indices,1]], 
+                {clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables2[mostimportant[indices,1]],
                                                              " and ", ratingsVariables2[mostimportant[indices,2]])}
                 if (j < length(indices)){
                         j <- length(indices)
@@ -190,4 +194,66 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         list(plotdata=x, name=clustertable[1:j,])
 })
 
+getJobs <- function(start = '', q='data+scientist', l=10199) {
+        finished <- FALSE
+        while (finished == FALSE) {
+                myurl <- constructIndeedURL(start, q, l)
+                ijobs <- suppressWarnings(fromJSON(myurl, flatten=TRUE))
+                end   <- ijobs$end
+                num_jobs <- ijobs$totalResults
+                i <- ijobs$results
+                jobtitle <- createJobLink(i$jobtitle, i$url)
+                company <- i$company
+                location <- i$formattedLocation
+                posted_by <- i$source
+                posting_date <- i$date
+                snippet <- i$snippet
+                url <- i$url
+                #onmousedown <- i$onmousedown
+                lat <- i$latitude
+                long <- i$longitude
+                #jobkey <- i$jobkey
+                #sponsored <- i$sponsored
+                expired <- i$expired
+                #indeedApply <- i$indeedApply
+                posted_at <- i$formattedRelativeTime
+                page <- data.frame(jobtitle, posted_at, company, location,
+                           posting_date, stringsAsFactors=FALSE)
+                if (end > 25) {
+                        alljobs <- rbind(alljobs, page)
+                } else {
+                        alljobs <- page
+                }
+                start <- end
+                #cat('num_jobs=',num_jobs, '; end=', end, '  ')
+                if (end >= num_jobs-25) {
+                        finished <- TRUE
+                }
+        }
+        alljobs$match_company_name <- toupper(alljobs$company)
+        alljobs <- left_join(alljobs, gd_data[,c(31,7,8,10)], by="match_company_name")
+        alljobs$match_company_name <- NULL
+        colnames(alljobs) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
+                               'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall rating from 1 to 5')
+        return(alljobs)
+}
 
+constructIndeedURL <- function(start, q, l) {
+        ## Indeed returns a maximum of 25 jobs per call
+        paste0("http://api.indeed.com/ads/apisearch?publisher=8835055801144634",
+                "&q=", q,
+                "&l=", l,
+                "&sort=date",
+                "&radius=50",
+                "&st=&jt=",
+                "&start=", start,
+                "&limit=25",
+                "&fromage=30",
+                "&filter=1",
+                "&latlong=1",
+                "&co=us&chnl=&userip=1.2.3.4&useragent=Mozilla/%2F4.0%28Firefox%29&v=2&format=json")
+}
+
+createJobLink <- function(labeltext, urltext) {
+        paste0('<a href="', urltext, '">', labeltext, '</a>')
+}

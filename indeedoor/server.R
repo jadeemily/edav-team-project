@@ -1,5 +1,6 @@
 library(shiny)
 library(shinydashboard)
+library(data.table)
 
 library(leaflet)
 library(maps)
@@ -8,9 +9,9 @@ library(rgdal)
 
 function(input, output, session) {
 
-        ##-------------------
-        ## Industry analysis
-        ##-------------------
+        ##--------------------------------
+        ## Industry analysis and job list
+        ##--------------------------------
         output$text1 <- renderText(paste("Top 25 industries in New York City by", input$industry_plot))
 
         output$plot1 <- renderPlot({
@@ -33,6 +34,8 @@ function(input, output, session) {
                 })
         })
 
+        output$joblist <- renderDataTable(nyc_jobs_dt, options = list(paging=TRUE), escape = FALSE)
+
         ##-------------------
         ## Job map
         ##-------------------
@@ -47,7 +50,7 @@ function(input, output, session) {
         m2 <- leaflet(data = map_df) %>% addTiles('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png',
         attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>%
         setView(-73.9983273, 40.7471983, zoom = 12)%>%
-        addCircles(lat = ~ map_df[,"latitude"], lng = ~ map_df[ ,"longitude"], #color = ~pal2,
+        addCircles(lat = ~ map_df[,"latitude"], lng = ~ map_df[ ,"longitude"], color = '#4d4698',
         radius = 200,
         popup= scrape_pop,
         weight = 3)
@@ -63,14 +66,14 @@ function(input, output, session) {
         # Define a reactive expression for the document term matrix
         terms <- reactive({
                 # Change when the "update" button is pressed...
-               
+
                 # ...but not for anything else
-                
+
                         withProgress({
                                 setProgress(message = "Processing corpus...")
                                 getTermMatrix(input$selection)
                         })
-                
+
         })
 
         # Make the wordcloud drawing predictable during a session
@@ -89,12 +92,12 @@ function(input, output, session) {
         cl_terms <- reactive({
                 # Change when the "update" button is pressed..
                 # ...but not for anything else
-               
+
                         withProgress({
                                 setProgress(message = "Processing...")
                                 getRegressionAnalysis(input$choice1, input$choice2, as.numeric(input$k),input$typeofcluster)
                         })
-                
+
         })
 
         output$plot3 <- renderPlot({
@@ -111,22 +114,17 @@ function(input, output, session) {
                 v <- cl_terms()
                 v$name
         })
-        
+
         output$parameterControls1 <- renderUI({
           xx <- getVariables(input$typeofcluster)
           selectInput("choice1", "Choose a Ratings Variable:",
                       choices = xx, selected = "cultureAndValuesRating")
-     #     selectInput("choice2", "Choose a Ratings Variable:",
-      #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
-          
           })
-      output$parameterControls2 <- renderUI({
-        xx <- getVariables(input$typeofcluster)
-        selectInput("choice2", "Choose a Ratings Variable:",
+
+        output$parameterControls2 <- renderUI({
+          xx <- getVariables(input$typeofcluster)
+          selectInput("choice2", "Choose a Ratings Variable:",
                    choices = xx, selected = "pctApprove")
-       #     selectInput("choice2", "Choose a Ratings Variable:",
-       #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
-       
-     })
+        })
 }
 
