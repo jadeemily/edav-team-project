@@ -5,6 +5,7 @@ library(leaflet)
 library(maps)
 library(scales)
 library(rgdal)
+library(ggvis)
 
 function(input, output, session) {
 
@@ -87,9 +88,7 @@ function(input, output, session) {
         ## Cluster analysis of ratings
         ##--------------------------------------------
         cl_terms <- reactive({
-                # Change when the "update" button is pressed..
-                # ...but not for anything else
-               
+                
                 withProgress({
                         setProgress(message = "Processing...")
                         getRegressionAnalysis(input$choice1, input$choice2, as.numeric(input$k),input$typeofcluster)
@@ -98,17 +97,21 @@ function(input, output, session) {
         })
 
         output$plot3 <- renderPlot({
-          
                 v <- cl_terms()
-                if(!is.null(v)){
-                  print(paste0("V1 ", v$plotdata[["v1"]]))
-                  print(paste0("V2 ", v$plotdata[["v2"]]))
-                  print(paste0("V3 ", v$plotdata[["v3"]]))
+                validate(
+                  need(!is.null(input$choice1), "Processing..")
+                )
+                xlabel<-ratingsVariables1[[input$choice1]]
+                ylabel<-ratingsVariables1[[input$choice2]]
                 plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
-                     col = v$plotdata[["v3"]],
-                     pch = 20, cex = 3, xlab=ratingsVariables1[[input$choice1]], ylab=ratingsVariables1[[input$choice2]])
-               legend('topright', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
-                }
+                       col = v$plotdata[["v3"]],
+                       pch = 20, cex = 3, xlab=xlabel, ylab=ylabel)
+                legend('topleft', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
+                
+                
+               # v %>% ggvis(~v$plotdata[["v1"]], ~v$plotdata[["v2"]]) %>% layer_points() %>% 
+                #  add_tooltip(~v$plotdata[["v4"]], "hover") %>%
+                 # bind_shiny("plot3")
                #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
               #  print(ggobj)
         })
@@ -120,7 +123,7 @@ function(input, output, session) {
         
         output$parameterControls1 <- renderUI({
           xx <- getVariables(input$typeofcluster)
-          selectInput("choice1", "Choose a Ratings Variable:",
+          selectInput("choice1", "Choose Ratings Variable #1:",
                       choices = xx, selected = "cultureAndValuesRating")
      #     selectInput("choice2", "Choose a Ratings Variable:",
       #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
@@ -128,7 +131,7 @@ function(input, output, session) {
           })
       output$parameterControls2 <- renderUI({
         xx <- getVariables(input$typeofcluster)
-        selectInput("choice2", "Choose a Ratings Variable:",
+        selectInput("choice2", "Choose Ratings Variable #2:",
                    choices = xx, selected = "pctApprove")
        #     selectInput("choice2", "Choose a Ratings Variable:",
        #                choices = ratingsVariables1, selected = "cultureAndValuesRating")

@@ -125,7 +125,12 @@ dashboardPage(
                                                 })
                                         ),
                                         box(
-                                                title = h3("Cluster analysis of Glassdoor: What makes people recommend companies?"),
+                                                title = h3("What makes people recommend companies?"),
+                                                print("We perform cluster analysis of the companies.
+                                                 Overall Rating or Recommend To Friends is modeled as a function of the remaining ratings factors and the similar industries are then clustered.
+                                                  We plot the clusters as a function of two of the factors and also list out the top two most important factors that influence
+                                                  the ratings within an industry type.
+                                                  You can vary the number of clusters and the plotting variables to observe what drives people in different kinds of industries."),
                                                 width = 9,
                                                 plotOutput("plot3"),
                                                 h4("Clusters and top 2 important factors within industry"),
