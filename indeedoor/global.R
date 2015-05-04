@@ -33,12 +33,15 @@ nyc_indeed_data <- filter(all_indeed_data, state %in% c('NY', 'NJ', 'CT'))
 
 ## Get current jobs directly from API:  restart indeedoor to refresh
 nyc_jobs_dt <- getJobs()
+nyc_jobs_dt$match_company_name <- toupper(nyc_jobs_dt$Company)
 
 ##---------------------------
 ## Generate industry plots
 ##---------------------------
 ## Inner join of glassdoor ratings with NY area data science jobs for one of the plots
-matches_only <- inner_join(gd_data, nyc_indeed_data, by="match_company_name")
+#matches_only <- inner_join(gd_data, nyc_indeed_data, by="match_company_name")
+matches_only <- inner_join(gd_data, nyc_jobs_dt, by="match_company_name")
+nyc_jobs_dt$match_company_name <- NULL
 dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 15, 16, 39)])
 names(dsjobs_by_company) <- c("company_name", "industry", "number_of_reviews", "overall_rating",
                               "culture_and_values", "compensation_and_benefits", "career_opportunities",
@@ -202,7 +205,7 @@ dbcities <<- list("Atlanta"  = "Atlanta", "Austin" = "Austin",
                   "San Jose" = "San Jose", "Seattle" = "Seattle",
                   "Los Angeles" = "Los Angeles", "Washington DC" = "Washington")
 
-ratingsVariables1 <-list("overallRating" = "Overall Rating",  "workLifeBalanceRating" = "Work Life Balance",
+ratingsVariables1 <<-list("overallRating" = "Overall Rating",  "workLifeBalanceRating" = "Work Life Balance",
                           "cultureAndValuesRating"= "Culture and Values" , "seniorLeadershipRating" = "Senior Leadership",
                           "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" ,
                           "pctApprove" = "CEO Approval" )

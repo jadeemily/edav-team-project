@@ -1,38 +1,42 @@
 require("RCurl")
 require("jsonlite")
 
-i <- 0
-for (i in 1:1973) {
-        myurl <- paste0("https://api.import.io/store/data/ba547b57-49f4-432a-a57e-61cea9cf8c7d/_query?",
-                "input/webpage/url=http%3A%2F%2Fwww.glassdoor.com%2FReviews%2Fnew-york-city-reviews-SRCH_IL.0%2C13_IM615_IP",
-                i,".htm&_user=94bbcc50-59b1-4168-9603-de5452fdedc6&_apikey=965MxL5U2UA5P18W4iNt7flPxtn%2FMr5RF%2",
-                "BeyT6K3YbylHhH8tGDEnfWggAXViyTkAN94n2PexcJ1EUv45tWMTA%3D%3D")
-        result <- try(raw_data <- fromJSON(myurl, flatten=TRUE), silent=TRUE) 
-        
-        if (class(result) != "try-error") {
-                headquarters    <- raw_data$results$headquarters
-                company_url     <- raw_data$results$company_url
-                num_reviews     <- raw_data$results$num_reviews
-                overall_rating  <- raw_data$results$overall_rating
-                review_summary  <- raw_data$results$review_summary
-                company_name    <- raw_data$results$`name/_text`
-                link_to_reviews <- raw_data$results$num_reviews_link
+# Glassdoor ratings data
+start <- nrow(gdata)/10 + 1  ## start from this page
+end <- start + 9
+finished <- FALSE
+while (finished == FALSE) {
+        for (i in start:end) {
+                myurl <- paste0("http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=31640&t.k=j3G7m4V1Dbg&",
+                        "action=employers&city=new%20%york&state=ny&userip=69.136.97.180&format=json&action=employers&pn=",i)
+                raw_data <- fromJSON(myurl, flatten=TRUE)
+                page_count <- raw_data$response$totalNumberOfPages
+                page <- as.data.frame(raw_data$response[5])
 
-                page <- as.data.frame(company_name, stringsAsFactors=FALSE)
-                page <- cbind(page, overall_rating)
-                page <- cbind(page, num_reviews)
-                page <- cbind(page, company_url)
-                page <- cbind(page, headquarters)
-                page <- cbind(page, review_summary)
-                page <- cbind(page, link_to_reviews)
-                names(page)[1] <- "company_name"
+                page$employers.featuredReview.headline <- NULL
+                page$employers.featuredReview.pros <- NULL
+                page$employers.featuredReview.cons <- NULL
+                page$employers.ceo.image.src <- NULL
+                page$employers.ceo.image.height <- NULL
+                page$employers.ceo.image.width <- NULL
 
-                if (i > 1) {
-                        df <- rbind(df, page)
-                } else {
-                        df <- page
-                }
+                page[is.na(page)] <- " "
+                #page <- page[,c(1:24)]
+                gdata <- rbind(gdata, page)
+                #i <- i + 1
+        }
+        start <- nrow(gdata)/10 + 1  ## start from this page
+        end <- start + 9
+        cat("start=", start, " end=", end, " pages=", page_count)
+        if (end > min(page_count*10, 10000)) {
+                finished <- TRUE
+                fn <- paste0("gd_data_", paste0(substr(Sys.time(),1,10), ".",
+                                        substr(Sys.time(),12,13),
+                                        substr(Sys.time(),15,16),
+                                        substr(Sys.time(),18,19),
+                                        ".csv"))
+                write.csv(gdata, file=fn, row.names=TRUE)
         }
 }
-## Write to a csv file
-#write.csv(df, "gd_data.csv", row.names=TRUE)
+
+

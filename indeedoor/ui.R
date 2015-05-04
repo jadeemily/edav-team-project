@@ -48,7 +48,17 @@ dashboardPage(
                                         box(
                                           width = 12,
                                           title = h3("Data science jobs in the New York City metro area"),
-                                          dataTableOutput('joblist'))
+                                          dataTableOutput('joblist'),
+                                          hr(),
+                                          withTags({
+                                                span(
+                                                    a(href='http://www.indeed.com/','jobs by',
+                                                    a(href  = 'http://www.indeed.com/',
+                                                    title = 'Job Search',
+                                                    img(src = 'http://www.indeed.com/p/jobsearch.gif',
+                                                        style='border: 0;vertical-align: middle')))
+                                                )
+                                          }))
                                 )
                         ),
 

@@ -2,7 +2,6 @@ require(memoise)
 require(dplyr)
 
 prepIndustryPlot <- function(top_rated, ratings, rating_type) {
-
         pdata <- suppressWarnings( inner_join(ratings, top_rated, by="industry", copy=TRUE) )
         pdata <- melt( pdata, "industry", na.rm=TRUE )
         cdata <- dcast( pdata, industry ~ variable, mean )
@@ -201,7 +200,7 @@ getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
                 location <- i$formattedLocation
                 posted_by <- i$source
                 posting_date <- i$date
-                snippet <- i$snippet
+                #snippet <- i$snippet
                 url <- i$url
                 #onmousedown <- i$onmousedown
                 lat <- i$latitude
@@ -218,17 +217,22 @@ getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
                 } else {
                         alljobs <- page
                 }
-                start <- end
                 #cat('num_jobs=',num_jobs, '; end=', end, '  ')
-                if (end >= num_jobs-25) {
+                if (end >= min(num_jobs-25, 1025)) {
                         finished <- TRUE
                 }
+                start <- end
         }
         alljobs <- filter(alljobs, expired == FALSE)
         alljobs$expired <- NULL
+        alljobs <- alljobs[c(grep("data", alljobs$jobtitle, ignore.case=TRUE)),]
+
         alljobs$match_company_name <- toupper(alljobs$company)
-        alljobs <- left_join(alljobs, gd_data[,c(31,7,8,10)], by="match_company_name")
+        alljobs <- left_join(alljobs, unique(gd_data[,c(31,7,8,10)]), by="match_company_name")
         alljobs$match_company_name <- NULL
+
+        #alljobs <- arrange(alljobs, desc(overall_rating))
+
         colnames(alljobs) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
                                'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall rating from 1 to 5')
         return(alljobs)
@@ -244,7 +248,7 @@ constructIndeedURL <- function(start, q, l, r) {
                 "&st=&jt=",
                 "&start=", start,
                 "&limit=25",
-                "&fromage=30",
+                "&fromage=60",
                 "&filter=1",
                 "&latlong=1",
                 "&co=us&chnl=&userip=1.2.3.4&useragent=Mozilla/%2F4.0%28Firefox%29&v=2&format=json")

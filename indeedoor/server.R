@@ -6,7 +6,7 @@ library(leaflet)
 library(maps)
 library(scales)
 library(rgdal)
-library(ggvis)
+#library(ggvis)
 
 function(input, output, session) {
 
@@ -35,7 +35,7 @@ function(input, output, session) {
                 })
         })
 
-        output$joblist <- renderDataTable(nyc_jobs_dt, options = list(paging=TRUE), escape = FALSE)
+        output$joblist <- renderDataTable(as.data.table(nyc_jobs_dt), options = list(paging=TRUE), escape = FALSE)
 
         ##-------------------
         ## Job map
