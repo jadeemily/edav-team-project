@@ -107,14 +107,15 @@ function(input, output, session) {
                 xlabel <- ratingsVariables1[[input$choice1]]
                 ylabel <- ratingsVariables1[[input$choice2]]
 
+
                 plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
                        col = v$plotdata[["v3"]],
                        pch = 20, cex = 3, xlab=xlabel, ylab=ylabel)
                 legend('topleft', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
 
-               # v %>% ggvis(~v$plotdata[["v1"]], ~v$plotdata[["v2"]]) %>% layer_points() %>%
-                #  add_tooltip(~v$plotdata[["v4"]], "hover") %>%
-                 # bind_shiny("plot3")
+              #  v$plotdata %>% ggvis(~v1, ~v2, key := ~v4) %>% layer_points() %>%
+               #   add_tooltip(all_values, "hover") %>%
+                #  bind_shiny("plot3")
                #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
               #  print(ggobj)
         })

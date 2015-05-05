@@ -102,6 +102,7 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         clusteringdata<-array()
         nameofindustry<-vector()
         mostimportant<-array()
+        clusters<-data.frame()
         j <- 0
         for (i in industries)
         {
@@ -156,13 +157,13 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         }
         clusteringdata<-na.omit(clusteringdata)
         mostimportant<-na.omit(mostimportant)
-        clusters<-kmeans(clusteringdata,k)
-
+        clusters<-kmeans(clusteringdata,k, nstart=10)
+        
         print("Clusters are printed here:")
-        print(clusters$cluster)
-
+        print(sort(clusters$cluster))
+  
         x<-data.frame()
-        (x<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], v3 = clusters$cluster))
+        (x<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], v3 = clusters$cluster, v4 = nameofindustry))
         x<-x[1:nrow(clusteringdata),]
         clustertable<-array(,k*nrow(clusteringdata))
         dim(clustertable)<-c(nrow(clusteringdata),k)
@@ -186,6 +187,12 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         }
         list(plotdata=x, name=clustertable[1:j,])
 })
+
+
+all_values <- function(x) {
+  if(is.null(x)) return(NULL)
+  paste0(names(x), ": ", format(x), collapse = "<br />")
+}
 
 getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
         finished <- FALSE
