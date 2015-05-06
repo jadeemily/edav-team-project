@@ -194,18 +194,19 @@ all_values <- function(x) {
   paste0(names(x), ": ", format(x), collapse = "<br />")
 }
 
-getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
-        library(jsonlite)
+getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         ## Indeed returns a maximum of 25 jobs per call
         finished <- FALSE
         while (finished == FALSE) {
-                myurl <- constructIndeedURL(start, q, l, r)
+                myurl <- constructIndeedURL(start, jq, l, r)
                 ijobs <- suppressWarnings(fromJSON(myurl, flatten=TRUE))
                 end   <- ijobs$end
                 num_jobs <- ijobs$totalResults
                 i <- ijobs$results
-                jobtitle <- createJobLink(i$jobtitle, i$url)
+                job_title <- i$jobtitle
+                job_link <- createJobLink(job_title, i$url)
                 company <- i$company
+                city <- i$city
                 location <- i$formattedLocation
                 posted_by <- i$source
                 posting_date <- i$date
@@ -219,12 +220,13 @@ getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
                 expired <- i$expired
                 #indeedApply <- i$indeedApply
                 posted_at <- i$formattedRelativeTime
-                page <- data.frame(jobtitle, posted_at, company, location,
-                           posting_date, expired, stringsAsFactors=FALSE)
+                page <- data.frame(job_title, job_link, posted_at, company, location,
+                           posting_date, expired, lat, long, stringsAsFactors=FALSE)
                 if (end > 25) {
-                        alljobs <- rbind(alljobs, page)
+                        alljobs  <- rbind(alljobs, page)
                 } else {
-                        alljobs <- page
+                        alljobs  <- page
+
                 }
                 #cat('num_jobs=',num_jobs, '; end=', end, '  ')
                 if (end >= min(num_jobs-25, 1000)) {
@@ -233,11 +235,11 @@ getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
                         start <- end
                 }
         }
-        alljobs <- filter(alljobs, expired == FALSE)
+        #alljobs <- filter(alljobs, expired == FALSE)
         alljobs$expired <- NULL
 
-        # We only want jobs with 'data' in the job title;  Indeed results are too broad
-        alljobs <- alljobs[c(grep("data", alljobs$jobtitle, ignore.case=TRUE)),]
+        # We only want jobs with 'data' in the job title;  Indeed search results are too broad
+        alljobs <- alljobs[c(grep("data", alljobs$job_title, ignore.case=TRUE)),]
 
         alljobs$match_company_name <- toupper(alljobs$company)
 
@@ -249,44 +251,44 @@ getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
 
         alljobs <- left_join(alljobs, unique(gd_data[,c(31,7,8,10)]), by="match_company_name")
 
-        # If company data is still missing try pulling it directly from Glassdoor
-        missing <- which(is.na(alljobs$industry))[1:100]
+        # If company data is still missing, try pulling it directly from Glassdoor
+        #missing <- which(is.na(alljobs$industry))
+        #for (m in missing) {
+        #        cq <- gsub(" ", "+", alljobs$company[m])
+        #        cdata <- getGlassdoorData(cq)
+        #        if (length(cdata) > 0) {
+        #                alljobs[m, 9] <- cdata$industry
+        #                alljobs[m, 10] <- cdata$numberOfRatings
+        #                alljobs[m, 11] <- cdata$overallRating
+        #        }
+        #}
+        #alljobs$match_company_name <- NULL
 
-        for (j in missing) {
-                q <- gsub(" ", "+", alljobs$company[j])
-                cdata <- getGlassdoorData(q)
-                if (length(cdata) > 0) {
-                        alljobs[j, 7] <- cdata$industry
-                        alljobs[j, 8] <- cdata$numberOfRatings
-                        alljobs[j, 9] <- cdata$overallRating
-                }
-        }
-        alljobs$match_company_name <- NULL
-
-        colnames(alljobs) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
-                               'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall rating from 1 to 5')
+        #colnames(alljobs) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
+        #                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating (1 to 5)',
+        #                       'lat', 'long')
         return(alljobs)
 }
 
-constructIndeedURL <- function(start, q, l, r) {
+constructIndeedURL <- function(start, jq, l, r) {
         paste0("http://api.indeed.com/ads/apisearch?publisher=8835055801144634",
-                "&q=", q,
+                "&q=", jq,
                 "&l=", l,
                 "&sort=date",
                 "&radius=", r,
                 "&st=&jt=",
                 "&start=", start,
                 "&limit=25",
-                "&fromage=60",
+                "&fromage=14",
                 "&filter=1",
                 "&latlong=1",
                 "&co=us&chnl=&userip=1.2.3.4&useragent=Mozilla/%2F4.0%28Firefox%29&v=2&format=json")
 }
 
-getGlassdoorData <- function(q) {
+getGlassdoorData <- function(cq) {
         myurl <- paste0("http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=31640&t.k=j3G7m4V1Dbg",
                         "&action=employers&city=&state=&userip=69.136.97.180",
-                        "&q=", q,
+                        "&q=", cq,
                         "&format=json&action=employers")
         raw_data <- fromJSON(myurl, flatten=TRUE)
         if (raw_data$success) {

@@ -9,7 +9,6 @@ library(rgdal)
 #library(ggvis)
 
 function(input, output, session) {
-
         ##--------------------------------
         ## Industry analysis and job list
         ##--------------------------------
@@ -35,7 +34,7 @@ function(input, output, session) {
                 })
         })
 
-        output$joblist <- renderDataTable(as.data.table(nyc_jobs_dt), options = list(paging=TRUE), escape = FALSE)
+        output$joblist <- renderDataTable(as.data.table(jobdt), options = list(paging=TRUE), escape = FALSE)
 
         ##-------------------
         ## Job map
@@ -47,6 +46,14 @@ function(input, output, session) {
                              "<br><strong>Glassdoor industry: </strong>", map_df$industry,
                              "<br><strong>Glassdoor number of reviews: </strong>", map_df$number_of_reviews,
                              "<br><strong>Glassdoor overall rating: </strong>", map_df$overall_rating)
+
+        #scrape_pop <- paste0("<strong>City: </strong>", jobmap$city,
+        #                     "<br><strong>Job Title: </strong>", jobmap$job_title,
+        #                     "<br><strong>Company: </strong>", jobmap$company,
+        #                     "<br><strong>When posted: </strong>", jobmap$posted_at,
+        #                     "<br><strong>Glassdoor industry: </strong>", jobmap$industry,
+        #                     "<br><strong>Glassdoor number of reviews: </strong>", jobmap$number_of_reviews,
+        #                     "<br><strong>Glassdoor overall rating: </strong>", jobmap$overall_rating)
 
         m2 <- leaflet(data = map_df) %>% addTiles('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png',
         attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>%

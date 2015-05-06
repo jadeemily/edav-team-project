@@ -10,6 +10,8 @@ require(memoise)
 require(RCurl)
 require(curl)
 require(jsonlite)
+require(shiny)
+require(httr)
 
 source("functions.R")
 
@@ -31,17 +33,22 @@ names(all_indeed_data)[8] <- "job_title"
 all_indeed_data$match_company_name <- toupper(all_indeed_data$company)
 nyc_indeed_data <- filter(all_indeed_data, state %in% c('NY', 'NJ', 'CT'))
 
-## Get current jobs directly from API:  restart indeedoor to refresh
-nyc_jobs_dt <- getJobs()
-nyc_jobs_dt$match_company_name <- toupper(nyc_jobs_dt$Company)
+## Get current jobs directly from Indeed API
+alljobs <- getJobs()
+#alljobs$match_company_name <- toupper(alljobs$company)
+jobdt <- data.frame(alljobs$job_link, alljobs$posted_at, alljobs$company, alljobs$location, alljobs$posting_date,
+                    alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
+colnames(jobdt) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
+                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating (1 to 5)')
+#jobmap <- data.frame(alljobs$lat, alljobs$long, alljobs$city, alljobs$job_link, alljobs$company, alljobs$posted_at,
+#                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
 
 ##---------------------------
 ## Generate industry plots
 ##---------------------------
 ## Inner join of glassdoor ratings with NY area data science jobs for one of the plots
 #matches_only <- inner_join(gd_data, nyc_indeed_data, by="match_company_name")
-matches_only <- inner_join(gd_data, nyc_jobs_dt, by="match_company_name")
-nyc_jobs_dt$match_company_name <- NULL
+matches_only <- inner_join(gd_data, alljobs, by="match_company_name")
 dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 15, 16, 39)])
 names(dsjobs_by_company) <- c("company_name", "industry", "number_of_reviews", "overall_rating",
                               "culture_and_values", "compensation_and_benefits", "career_opportunities",
