@@ -39,9 +39,10 @@ alljobs <- getJobs()
 jobdt <- data.frame(alljobs$job_link, alljobs$posted_at, alljobs$company, alljobs$location, alljobs$posting_date,
                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
 colnames(jobdt) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
-                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating (1 to 5)')
-#jobmap <- data.frame(alljobs$lat, alljobs$long, alljobs$city, alljobs$job_link, alljobs$company, alljobs$posted_at,
-#                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
+                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating')
+jobmap <- data.frame(alljobs$lat, alljobs$long, alljobs$city, alljobs$job_link, alljobs$company, alljobs$posted_at,
+                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
+colnames(jobmap) <- c('lat', 'long', 'city', 'job_title', 'company', 'posted_at', 'industry', 'number_of_reviews', 'overall_rating')
 
 ##---------------------------
 ## Generate industry plots
@@ -211,7 +212,7 @@ hiring_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
 ##------------------------------
 ## Prepare map data and tooltips
 ## -----------------------------
-map_df <- left_join(all_indeed_data, gd_data[,c(31,7,8,10)], by="match_company_name")
+#map_df <- left_join(all_indeed_data, gd_data[,c(31,7,8,10)], by="match_company_name")
 
 ##--------------------------------------------------------------
 ## Prepare skills word cloud and friend recommendation analysis

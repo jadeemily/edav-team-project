@@ -220,7 +220,7 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
                 expired <- i$expired
                 #indeedApply <- i$indeedApply
                 posted_at <- i$formattedRelativeTime
-                page <- data.frame(job_title, job_link, posted_at, company, location,
+                page <- data.frame(job_title, job_link, posted_at, company, location, city,
                            posting_date, expired, lat, long, stringsAsFactors=FALSE)
                 if (end > 25) {
                         alljobs  <- rbind(alljobs, page)
@@ -257,9 +257,9 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         #        cq <- gsub(" ", "+", alljobs$company[m])
         #        cdata <- getGlassdoorData(cq)
         #        if (length(cdata) > 0) {
-        #                alljobs[m, 9] <- cdata$industry
-        #                alljobs[m, 10] <- cdata$numberOfRatings
-        #                alljobs[m, 11] <- cdata$overallRating
+        #                alljobs[m, 10] <- cdata$industry
+        #                alljobs[m, 11] <- cdata$numberOfRatings
+        #                alljobs[m, 12] <- cdata$overallRating
         #        }
         #}
         #alljobs$match_company_name <- NULL
