@@ -25,8 +25,8 @@ dashboardPage(
                                             "Overall rating" = "overall rating",
                                             "Culture and values" = "culture and values",
                                             "Compensation and benefits" = "compensation and benefits",
-                                            "Career opportunities" = "career opportunities",
-                                            "Work-life balance" = "work-life balance"),
+                                            "Work-life balance" = "work-life balance",
+                                            "Career opportunities" = "career opportunities"),
                                             selected = "overall rating (hiring data scientists)",
                                             inline = TRUE)
                                         )
@@ -35,7 +35,7 @@ dashboardPage(
                                         box(
                                           title = h3(textOutput("text1")),
                                           width = 12,
-                                          plotOutput("plot1", height="800px", width="1200px"),
+                                          plotOutput("plot1", height="700px", width="100%"),
                                           hr(),
                                           withTags({
                                                   a(href='http://www.glassdoor.com/index.htm',

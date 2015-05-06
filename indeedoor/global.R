@@ -47,12 +47,17 @@ colnames(jobdt) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting 
 ## Generate industry plots
 ##---------------------------
 ## Inner join of glassdoor ratings with NY area data science jobs for one of the plots
-#matches_only <- inner_join(gd_data, nyc_indeed_data, by="match_company_name")
 matches_only <- inner_join(gd_data, alljobs, by="match_company_name")
-dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 15, 16, 39)])
-names(dsjobs_by_company) <- c("company_name", "industry", "number_of_reviews", "overall_rating",
-                              "culture_and_values", "compensation_and_benefits", "career_opportunities",
-                              "work_life_balance", "job_title")
+dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 16, 15, 39)])
+names(dsjobs_by_company) <- c("company_name",
+                              "industry",
+                              "number_of_reviews",
+                              "overall_rating",
+                              "culture_and_values",
+                              "compensation_and_benefits",
+                              "work_life_balance",
+                              "career_opportunities",
+                              "job_title")
 dsjobs_by_company$culture_and_values        <- as.numeric(dsjobs_by_company$culture_and_values)
 dsjobs_by_company$compensation_and_benefits <- as.numeric(dsjobs_by_company$compensation_and_benefits)
 dsjobs_by_company$career_opportunities      <- as.numeric(dsjobs_by_company$career_opportunities)
@@ -60,8 +65,13 @@ dsjobs_by_company$work_life_balance         <- as.numeric(dsjobs_by_company$work
 
 ## Prepare industry rating data for plotting
 rating_data  <- gd_data[,c(7,8,10,12,14,15,16)]
-names(rating_data) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
-                        "compensation_and_benefits", "career_opportunities", "work_life_balance")
+names(rating_data) <- c("industry",
+                        "number_of_reviews",
+                        "overall_rating",
+                        "culture_and_values",
+                        "compensation_and_benefits",
+                        "work_life_balance",
+                        "career_opportunities")
 rating_data$culture_and_values        <- as.numeric(rating_data$culture_and_values)
 rating_data$compensation_and_benefits <- as.numeric(rating_data$compensation_and_benefits)
 rating_data$career_opportunities      <- as.numeric(rating_data$career_opportunities)
@@ -87,9 +97,9 @@ top_hiring <- summarize( by_industry,
                          mean(work_life_balance) )
 
 names(top) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
-                "compensation_and_benefits", "career_opportunities", "work_life_balance")
+                "compensation_and_benefits", "work_life_balance", "career_opportunities")
 names(top_hiring) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
-                "compensation_and_benefits", "career_opportunities", "work_life_balance")
+                "compensation_and_benefits", "work_life_balance", "career_opportunities")
 
 top <- filter( top, number_of_reviews >= 500 )
 top_hiring <- filter( top_hiring, number_of_reviews >= 500)

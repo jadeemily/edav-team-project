@@ -265,7 +265,7 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         #alljobs$match_company_name <- NULL
 
         #colnames(alljobs) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
-        #                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating (1 to 5)',
+        #                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating',
         #                       'lat', 'long')
         return(alljobs)
 }

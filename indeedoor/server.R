@@ -12,7 +12,7 @@ function(input, output, session) {
         ##--------------------------------
         ## Industry analysis and job list
         ##--------------------------------
-        output$text1 <- renderText(paste("Top 25 industries in New York City by", input$industry_plot))
+        output$text1 <- renderText(paste("Top industries in New York City by", input$industry_plot))
 
         output$plot1 <- renderPlot({
                 x <- input$industry_plot
