@@ -158,10 +158,10 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         clusteringdata<-na.omit(clusteringdata)
         mostimportant<-na.omit(mostimportant)
         clusters<-kmeans(clusteringdata,k, nstart=10)
-        
+
         print("Clusters are printed here:")
         print(sort(clusters$cluster))
-  
+
         x<-data.frame()
         (x<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], v3 = clusters$cluster, v4 = nameofindustry))
         x<-x[1:nrow(clusteringdata),]
@@ -195,6 +195,8 @@ all_values <- function(x) {
 }
 
 getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
+        library(jsonlite)
+        ## Indeed returns a maximum of 25 jobs per call
         finished <- FALSE
         while (finished == FALSE) {
                 myurl <- constructIndeedURL(start, q, l, r)
@@ -225,20 +227,41 @@ getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
                         alljobs <- page
                 }
                 #cat('num_jobs=',num_jobs, '; end=', end, '  ')
-                if (end >= min(num_jobs-25, 1025)) {
+                if (end >= min(num_jobs-25, 1000)) {
                         finished <- TRUE
+                } else {
+                        start <- end
                 }
-                start <- end
         }
         alljobs <- filter(alljobs, expired == FALSE)
         alljobs$expired <- NULL
+
+        # We only want jobs with 'data' in the job title;  Indeed results are too broad
         alljobs <- alljobs[c(grep("data", alljobs$jobtitle, ignore.case=TRUE)),]
 
         alljobs$match_company_name <- toupper(alljobs$company)
-        alljobs <- left_join(alljobs, unique(gd_data[,c(31,7,8,10)]), by="match_company_name")
-        alljobs$match_company_name <- NULL
 
-        #alljobs <- arrange(alljobs, desc(overall_rating))
+        # Perform lookup and substitution for certain company names that we know do not match between Indeed and Glassdoor
+        company_lookup <- read.csv("name_lookup.txt", stringsAsFactors=FALSE, header=TRUE)
+        x    <- match(alljobs$match_company_name, company_lookup$Indeed)
+        indx <- alljobs$match_company_name %in% company_lookup$Indeed
+        alljobs$match_company_name[indx] <- sub("(^[[:space:]]+|[[:space:]]+$)", "", company_lookup$Glassdoor[x[indx]])
+
+        alljobs <- left_join(alljobs, unique(gd_data[,c(31,7,8,10)]), by="match_company_name")
+
+        # If company data is still missing try pulling it directly from Glassdoor
+        missing <- which(is.na(alljobs$industry))[1:100]
+
+        for (j in missing) {
+                q <- gsub(" ", "+", alljobs$company[j])
+                cdata <- getGlassdoorData(q)
+                if (length(cdata) > 0) {
+                        alljobs[j, 7] <- cdata$industry
+                        alljobs[j, 8] <- cdata$numberOfRatings
+                        alljobs[j, 9] <- cdata$overallRating
+                }
+        }
+        alljobs$match_company_name <- NULL
 
         colnames(alljobs) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
                                'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall rating from 1 to 5')
@@ -246,7 +269,6 @@ getJobs <- function(start='', q='data+scientist', l='10199', r=50) {
 }
 
 constructIndeedURL <- function(start, q, l, r) {
-        ## Indeed returns a maximum of 25 jobs per call
         paste0("http://api.indeed.com/ads/apisearch?publisher=8835055801144634",
                 "&q=", q,
                 "&l=", l,
@@ -259,6 +281,22 @@ constructIndeedURL <- function(start, q, l, r) {
                 "&filter=1",
                 "&latlong=1",
                 "&co=us&chnl=&userip=1.2.3.4&useragent=Mozilla/%2F4.0%28Firefox%29&v=2&format=json")
+}
+
+getGlassdoorData <- function(q) {
+        myurl <- paste0("http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=31640&t.k=j3G7m4V1Dbg",
+                        "&action=employers&city=&state=&userip=69.136.97.180",
+                        "&q=", q,
+                        "&format=json&action=employers")
+        raw_data <- fromJSON(myurl, flatten=TRUE)
+        if (raw_data$success) {
+                company <- as.data.frame(raw_data$response$employers)[1,]
+                if (ncol(company) > 0) {
+                        #cat(q)
+                        cdata <- company[c(2,6,7,9)]
+                        return(cdata)
+                }
+        }
 }
 
 createJobLink <- function(labeltext, urltext) {
