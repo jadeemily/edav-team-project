@@ -35,7 +35,6 @@ nyc_indeed_data <- filter(all_indeed_data, state %in% c('NY', 'NJ', 'CT'))
 
 ## Get current jobs directly from Indeed API
 alljobs <- getJobs()
-#alljobs$match_company_name <- toupper(alljobs$company)
 jobdt <- data.frame(alljobs$job_link, alljobs$posted_at, alljobs$company, alljobs$location, alljobs$posting_date,
                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
 colnames(jobdt) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
@@ -43,6 +42,8 @@ colnames(jobdt) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting 
 jobmap <- data.frame(alljobs$lat, alljobs$long, alljobs$city, alljobs$job_link, alljobs$company, alljobs$posted_at,
                      alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
 colnames(jobmap) <- c('lat', 'long', 'city', 'job_title', 'company', 'posted_at', 'industry', 'number_of_reviews', 'overall_rating')
+jobwords <- data.frame(alljobs$city, alljobs$snippet)
+colnames(jobwords) <- c('city', 'snippet')
 
 ##---------------------------
 ## Generate industry plots
@@ -61,8 +62,8 @@ names(dsjobs_by_company) <- c("company_name",
                               "job_title")
 dsjobs_by_company$culture_and_values        <- as.numeric(dsjobs_by_company$culture_and_values)
 dsjobs_by_company$compensation_and_benefits <- as.numeric(dsjobs_by_company$compensation_and_benefits)
-dsjobs_by_company$career_opportunities      <- as.numeric(dsjobs_by_company$career_opportunities)
 dsjobs_by_company$work_life_balance         <- as.numeric(dsjobs_by_company$work_life_balance)
+dsjobs_by_company$career_opportunities      <- as.numeric(dsjobs_by_company$career_opportunities)
 
 ## Prepare industry rating data for plotting
 rating_data  <- gd_data[,c(7,8,10,12,14,15,16)]
@@ -75,8 +76,8 @@ names(rating_data) <- c("industry",
                         "career_opportunities")
 rating_data$culture_and_values        <- as.numeric(rating_data$culture_and_values)
 rating_data$compensation_and_benefits <- as.numeric(rating_data$compensation_and_benefits)
-rating_data$career_opportunities      <- as.numeric(rating_data$career_opportunities)
 rating_data$work_life_balance         <- as.numeric(rating_data$work_life_balance)
+rating_data$career_opportunities      <- as.numeric(rating_data$career_opportunities)
 
 ## Compute top 25 industries by each rating category
 by_industry <- group_by( rating_data, industry )
@@ -85,8 +86,8 @@ top <- summarize( by_industry,
                   mean(overall_rating),
                   mean(culture_and_values),
                   mean(compensation_and_benefits),
-                  mean(career_opportunities),
-                  mean(work_life_balance) )
+                  mean(work_life_balance),
+                  mean(career_opportunities))
 
 by_industry <- group_by( dsjobs_by_company, industry )
 top_hiring <- summarize( by_industry,
@@ -94,8 +95,9 @@ top_hiring <- summarize( by_industry,
                          mean(overall_rating),
                          mean(culture_and_values),
                          mean(compensation_and_benefits),
-                         mean(career_opportunities),
-                         mean(work_life_balance) )
+                         mean(work_life_balance),
+                         mean(career_opportunities))
+
 
 names(top) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
                 "compensation_and_benefits", "work_life_balance", "career_opportunities")
@@ -107,21 +109,21 @@ top_hiring <- filter( top_hiring, number_of_reviews >= 500)
 
 ratings_culture      <- filter( top, culture_and_values > 0 )
 ratings_compensation <- filter( top, compensation_and_benefits > 0 )
-ratings_career       <- filter( top, career_opportunities > 0 )
 ratings_worklife     <- filter( top, work_life_balance > 0 )
+ratings_career       <- filter( top, career_opportunities > 0 )
 
 top_overall      <- arrange( top, desc(overall_rating) )
 top_culture      <- arrange( top, desc(culture_and_values) )
 top_compensation <- arrange( top, desc(compensation_and_benefits) )
-top_career       <- arrange( top, desc(career_opportunities) )
 top_worklife     <- arrange( top, desc(work_life_balance) )
+top_career       <- arrange( top, desc(career_opportunities) )
 top_hiring       <- arrange( top_hiring, desc(overall_rating) )
 
 top_overall      <- c( top_overall[1:25,1] )
 top_culture      <- c( top_culture[1:25,1] )
 top_compensation <- c( top_compensation[1:25,1] )
-top_career       <- c( top_career[1:25,1] )
 top_worklife     <- c( top_worklife[1:25,1] )
+top_career       <- c( top_career[1:25,1] )
 top_hiring       <- c( top_hiring[1:25,1] )
 
 pdata <- prepIndustryPlot(top_overall, rating_data, "overall")
@@ -219,7 +221,7 @@ hiring_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
 ##--------------------------------------------------------------
 dbcities <<- list("Atlanta"  = "Atlanta", "Austin" = "Austin",
                   "Boston" = "Boston", "Chicago" = "Chicago", "Houston" = "Houston",
-                  "NYC" =  "New York", "San Francisco" = "San Francisco",
+                  "New York" =  "New York", "San Francisco" = "San Francisco",
                   "San Jose" = "San Jose", "Seattle" = "Seattle",
                   "Los Angeles" = "Los Angeles", "Washington DC" = "Washington")
 

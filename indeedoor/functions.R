@@ -9,8 +9,8 @@ prepIndustryPlot <- function(top_rated, ratings, rating_type) {
         cdata$overall_rating            <- round( cdata$overall_rating, 1 )
         cdata$culture_and_values        <- round( cdata$culture_and_values, 1 )
         cdata$compensation_and_benefits <- round( cdata$compensation_and_benefits, 1 )
-        cdata$career_opportunities      <- round( cdata$career_opportunities, 1 )
         cdata$work_life_balance         <- round( cdata$work_life_balance, 1 )
+        cdata$career_opportunities      <- round( cdata$career_opportunities, 1 )
 
         if (rating_type == "overall") {
                 cdata <- arrange( cdata, desc(overall_rating) )
@@ -50,6 +50,8 @@ getConnection <- function(group) {
 
 getTermMatrix <- memoise(function(dbCity) {
         ##con <- getConnection()  ## this was giving errors and corrupting the connection; use existing connection in global mydb
+        #rs = dbSendQuery(mydb, paste0("select * from IndeedAnalyticsByTopCities where city = '",
+        #                              dbCity,"' and `job.title` like '%Data%'"))
         rs = dbSendQuery(mydb, paste0("select * from IndeedAnalyticsByTopCities where city = '",dbCity,"'"))
         jobData = fetch(rs, n=-1)
         #dbDisconnect(con)
@@ -65,7 +67,23 @@ getTermMatrix <- memoise(function(dbCity) {
         docs <- tm_map(docs, removeNumbers)
         docs <- tm_map(docs, removePunctuation)
         docs <- tm_map(docs, removeWords, stopwords("english"))
-        docs <- tm_map(docs, removeWords, c("experience", "will", "data", "analytics", "skills", "analytic", "analysis", "big", "team", "scientist", "scientists", "engineers", "work"))
+        docs <- tm_map(docs, removeWords, c("experience", "will", "data", "analytics", "skills", "analytic", "analysis", "big",
+                                            "team", "scientist", "scientists", "engineers", "work", "etc", "including", "background",
+                                            "currently", "like", "least", "must", "information", "leading", "solution", "interested",
+                                            "seeking", "needs", "similar", "best", "roles", "year", "york", "common", "define", "youll",
+                                            "youre", "using", "help", "years", "part", "area", "can", "also", "enable", "important", "make",
+                                            "one", "plus", "two", "alongside", "better", "choice", "content", "conjunction", "desire",
+                                            "either", "making", "meet", "months", "needed", "pull", "new", "use", "andor", "etc", "please",
+                                            "role", "apply", "ensure", "job", "huge", "level", "maximize", "plus", "review", "subject", "trying",
+                                            "year", "action", "adm", "addition", "additional", "assemble", "assignment", "associates", "blend",
+                                            "based", "center", "choice", "capturing", "close", "complete", "consumed", "day", "display", "either",
+                                            "full", "highest", "honor", "includes", "incorporate", "individual", "lots", "look", "minimum",
+                                            "modifying", "mission", "now", "ongoing", "past", "propose", "requires", "sites", "summary", "via",
+                                            "provide", "whether", "laboratory", "strong", "solutions", "department", "well", "results",
+                                            "position", "project", "amp", "works", "successful", "clinical", "providing", "qualifications",
+                                            "performs", "within", "employee", "relevant", "since", "california", "looking", "large",
+                                            "san", "select", "appropriate", "responsible", "teams", "worked", "working", "scientific",
+                                            "pharmacology", "toxicology", "company", "closely", "science"))
         docs <- tm_map(docs, stripWhitespace)
         #  docs <- tm_map(docs, stemDocument)
 
@@ -204,24 +222,24 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
                 num_jobs <- ijobs$totalResults
                 i <- ijobs$results
                 job_title <- i$jobtitle
-                job_link <- createJobLink(job_title, i$url)
+                job_link <- createJobLink(job_title, i$url, i$onmousedown)
                 company <- i$company
                 city <- i$city
                 location <- i$formattedLocation
-                posted_by <- i$source
+                #posted_by <- i$source
                 posting_date <- i$date
-                #snippet <- i$snippet
-                url <- i$url
+                snippet <- i$snippet
+                #url <- i$url
                 #onmousedown <- i$onmousedown
                 lat <- i$latitude
                 long <- i$longitude
                 #jobkey <- i$jobkey
                 #sponsored <- i$sponsored
-                expired <- i$expired
+                #expired <- i$expired
                 #indeedApply <- i$indeedApply
                 posted_at <- i$formattedRelativeTime
                 page <- data.frame(job_title, job_link, posted_at, company, location, city,
-                           posting_date, expired, lat, long, stringsAsFactors=FALSE)
+                           posting_date, lat, long, snippet, stringsAsFactors=FALSE)
                 if (end > 25) {
                         alljobs  <- rbind(alljobs, page)
                 } else {
@@ -236,7 +254,7 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
                 }
         }
         #alljobs <- filter(alljobs, expired == FALSE)
-        alljobs$expired <- NULL
+        #alljobs$expired <- NULL
 
         # We only want jobs with 'data' in the job title;  Indeed search results are too broad
         alljobs <- alljobs[c(grep("data", alljobs$job_title, ignore.case=TRUE)),]
@@ -257,9 +275,9 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         #        cq <- gsub(" ", "+", alljobs$company[m])
         #        cdata <- getGlassdoorData(cq)
         #        if (length(cdata) > 0) {
-        #                alljobs[m, 10] <- cdata$industry
-        #                alljobs[m, 11] <- cdata$numberOfRatings
-        #                alljobs[m, 12] <- cdata$overallRating
+        #                alljobs[m, 11] <- cdata$industry
+        #                alljobs[m, 12] <- cdata$numberOfRatings
+        #                alljobs[m, 13] <- cdata$overallRating
         #        }
         #}
         #alljobs$match_company_name <- NULL
@@ -279,7 +297,7 @@ constructIndeedURL <- function(start, jq, l, r) {
                 "&st=&jt=",
                 "&start=", start,
                 "&limit=25",
-                "&fromage=14",
+                "&fromage=30",
                 "&filter=1",
                 "&latlong=1",
                 "&co=us&chnl=&userip=1.2.3.4&useragent=Mozilla/%2F4.0%28Firefox%29&v=2&format=json")
@@ -301,6 +319,6 @@ getGlassdoorData <- function(cq) {
         }
 }
 
-createJobLink <- function(labeltext, urltext) {
-        paste0('<a href="', urltext, '">', labeltext, '</a>')
+createJobLink <- function(labeltext, urltext, omd) {
+        paste0('<a onmousedown="', omd, '" href="', urltext, '" target="_blank">', labeltext, '</a>')
 }
