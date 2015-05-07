@@ -83,7 +83,9 @@ getTermMatrix <- memoise(function(dbCity) {
                                             "position", "project", "amp", "works", "successful", "clinical", "providing", "qualifications",
                                             "performs", "within", "employee", "relevant", "since", "california", "looking", "large",
                                             "san", "select", "appropriate", "responsible", "teams", "worked", "working", "scientific",
-                                            "pharmacology", "toxicology", "company", "closely", "science"))
+                                            "pharmacology", "toxicology", "company", "closely", "science", "equivalent", "according",
+                                            "understanding", "current", "required", "license", "class", "questions", "answers",
+                                            "challenging"))
         docs <- tm_map(docs, stripWhitespace)
         #  docs <- tm_map(docs, stemDocument)
 
@@ -253,8 +255,6 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
                         start <- end
                 }
         }
-        #alljobs <- filter(alljobs, expired == FALSE)
-        #alljobs$expired <- NULL
 
         # We only want jobs with 'data' in the job title;  Indeed search results are too broad
         alljobs <- alljobs[c(grep("data", alljobs$job_title, ignore.case=TRUE)),]
@@ -280,11 +280,7 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         #                alljobs[m, 13] <- cdata$overallRating
         #        }
         #}
-        #alljobs$match_company_name <- NULL
 
-        #colnames(alljobs) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
-        #                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating',
-        #                       'lat', 'long')
         return(alljobs)
 }
 
