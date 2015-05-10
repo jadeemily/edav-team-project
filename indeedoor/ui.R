@@ -33,8 +33,8 @@ dashboardPage(
                                 ),
                                 fluidRow(
                                         box(
-                                          title = h3(textOutput("text1")),
                                           width = 12,
+                                          title = h3(textOutput("text1")),
                                           plotOutput("plot1", height="700px", width="100%"),
                                           hr(),
                                           withTags({

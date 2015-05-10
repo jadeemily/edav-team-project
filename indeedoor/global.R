@@ -20,7 +20,7 @@ mydb <- dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='g
 rs <- dbSendQuery(mydb, "select * from CompanyRatings")
 master_gd_data <- fetch(rs, n=-1)
 gd_data <- master_gd_data
-gd_data$match_company_name <- toupper(gd_data$employers.name)
+gd_data$match_company_name <- toupper(gd_data$name)
 names(gd_data)[7] <- "industry"
 names(gd_data)[8] <- "number_of_reviews"
 names(gd_data)[10] <- "overall_rating"
@@ -39,17 +39,17 @@ jobdt <- data.frame(alljobs$job_link, alljobs$posted_at, alljobs$company, alljob
                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
 colnames(jobdt) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
                        'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating')
+
 jobmap <- data.frame(alljobs$lat, alljobs$long, alljobs$city, alljobs$job_link, alljobs$company, alljobs$posted_at,
                      alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
 colnames(jobmap) <- c('lat', 'long', 'city', 'job_title', 'company', 'posted_at', 'industry', 'number_of_reviews', 'overall_rating')
-jobwords <- data.frame(alljobs$city, alljobs$snippet)
-colnames(jobwords) <- c('city', 'snippet')
 
 ##---------------------------
 ## Generate industry plots
 ##---------------------------
 ## Inner join of glassdoor ratings with NY area data science jobs for one of the plots
 matches_only <- inner_join(gd_data, alljobs, by="match_company_name")
+matches_only <- filter(matches_only, industry.x != '')
 dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 16, 15, 39)])
 names(dsjobs_by_company) <- c("company_name",
                               "industry",

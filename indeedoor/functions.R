@@ -1,5 +1,6 @@
 require(memoise)
 require(dplyr)
+require(lubridate)
 
 prepIndustryPlot <- function(top_rated, ratings, rating_type) {
         pdata <- suppressWarnings( inner_join(ratings, top_rated, by="industry", copy=TRUE) )
@@ -116,9 +117,9 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         data <- master_gd_data  ## already have this in a data frame
         #print(variable1)
         #print(variable2)
-        data <- subset(data, data$employers.industry != "")
-        industries <-unique(data$employers.industry)
-        largedata<-subset(data, data$employers.numberOfRatings > 40)
+        data <- subset(data, data$industry != "")
+        industries <-unique(data$industry)
+        largedata<-subset(data, data$numberOfRatings > 40)
         clusteringdata<-array()
         nameofindustry<-vector()
         mostimportant<-array()
@@ -126,35 +127,33 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         j <- 0
         for (i in industries)
         {
-                fdata <- subset(largedata, data$employers.industry == i)
+                fdata <- subset(largedata, data$industry == i)
                 if (nrow(fdata) > 40)
                 {
-                        #print (paste0("Industry is ", i, " and the number of companies is ", nrow(fdata)))
-                        id <- fdata$employers.id
-                        name <- fdata$employers.name
-                        website <- fdata$employers.website
-                        industry <- fdata$employers.industry
+                        print (paste0("Industry is ", i, " and the number of companies is ", nrow(fdata)))
+                        id <- fdata$id
+                        name <- fdata$name
+                        website <- fdata$website
+                        industry <- fdata$industry
 
-                        overallRating <- fdata$employers.overallRating
-                        ratingDescription <- fdata$employers.ratingDescription
-                        cultureAndValuesRating <- fdata$employers.cultureAndValuesRating
-                        seniorLeadershipRating <- fdata$employers.seniorLeadershipRating
-                        compensationAndBenefitsRating <- fdata$employers.compensationAndBenefitsRating
-                        careerOpportunitiesRating <- fdata$employers.careerOpportunitiesRating
-                        workLifeBalanceRating <- fdata$employers.workLifeBalanceRating
-                        recommendToFriendRating <- fdata$employers.recommendToFriendRating
-                        pctApprove <- fdata$employers.ceo.pctApprove
+                        overallRating <- fdata$overallRating
+                        ratingDescription <- fdata$ratingDescription
+                        cultureAndValuesRating <- fdata$cultureAndValuesRating
+                        seniorLeadershipRating <- fdata$seniorLeadershipRating
+                        compensationAndBenefitsRating <- fdata$compensationAndBenefitsRating
+                        careerOpportunitiesRating <- fdata$careerOpportunitiesRating
+                        workLifeBalanceRating <- fdata$workLifeBalanceRating
+                        recommendToFriendRating <- fdata$recommendToFriendRating
+                        pctApprove <- fdata$ceo.pctApprove
 
                         employer <- data.frame(id, name, website, industry, overallRating, ratingDescription, cultureAndValuesRating, seniorLeadershipRating, compensationAndBenefitsRating, careerOpportunitiesRating, workLifeBalanceRating, recommendToFriendRating, pctApprove)
 
                         if(clustertype==2)
                         {
-                      #  fit <- lm(fdata$employers.recommendToFriendRating ~ fdata$employers.overallRating + fdata$employers.workLifeBalanceRating + fdata$employers.cultureAndValuesRating + fdata$employers.seniorLeadershipRating + fdata$employers.compensationAndBenefitsRating + fdata$employers.careerOpportunitiesRating + fdata$employers.ceo.pctApprove -1 , data=fdata)
                         fit <- lm(recommendToFriendRating ~ overallRating + workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
                         }
                         else
                         {
-                      #    fit <- lm(fdata$employers.overallRating ~ fdata$employers.workLifeBalanceRating + fdata$employers.cultureAndValuesRating + fdata$employers.seniorLeadershipRating + fdata$employers.compensationAndBenefitsRating + fdata$employers.careerOpportunitiesRating + fdata$employers.ceo.pctApprove -1 , data=fdata)
                           fit <- lm(overallRating ~ workLifeBalanceRating + cultureAndValuesRating + seniorLeadershipRating + compensationAndBenefitsRating + careerOpportunitiesRating + pctApprove -1 , data=fdata)
                         }
                         fit2 <- fit
@@ -229,19 +228,20 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
                 city <- i$city
                 location <- i$formattedLocation
                 #posted_by <- i$source
-                posting_date <- i$date
-                snippet <- i$snippet
+                #posting_date <- format(dmy_hms(i$date), format="%A, %h %d, %Y %T")
+                posting_date <- dmy_hms(i$date)
+                #snippet <- i$snippet
                 #url <- i$url
                 #onmousedown <- i$onmousedown
                 lat <- i$latitude
                 long <- i$longitude
                 #jobkey <- i$jobkey
-                #sponsored <- i$sponsored
+                sponsored <- i$sponsored
                 #expired <- i$expired
                 #indeedApply <- i$indeedApply
                 posted_at <- i$formattedRelativeTime
                 page <- data.frame(job_title, job_link, posted_at, company, location, city,
-                           posting_date, lat, long, snippet, stringsAsFactors=FALSE)
+                           posting_date, lat, long, sponsored, stringsAsFactors=FALSE)
                 if (end > 25) {
                         alljobs  <- rbind(alljobs, page)
                 } else {
@@ -258,28 +258,16 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
 
         # We only want jobs with 'data' in the job title;  Indeed search results are too broad
         alljobs <- alljobs[c(grep("data", alljobs$job_title, ignore.case=TRUE)),]
-
-        alljobs$match_company_name <- toupper(alljobs$company)
+        alljobs <- arrange(alljobs, desc(posting_date))
 
         # Perform lookup and substitution for certain company names that we know do not match between Indeed and Glassdoor
+        alljobs$match_company_name <- toupper(alljobs$company)
         company_lookup <- read.csv("name_lookup.txt", stringsAsFactors=FALSE, header=TRUE)
         x    <- match(alljobs$match_company_name, company_lookup$Indeed)
         indx <- alljobs$match_company_name %in% company_lookup$Indeed
         alljobs$match_company_name[indx] <- sub("(^[[:space:]]+|[[:space:]]+$)", "", company_lookup$Glassdoor[x[indx]])
 
-        alljobs <- left_join(alljobs, unique(gd_data[,c(31,7,8,10)]), by="match_company_name")
-
-        # If company data is still missing, try pulling it directly from Glassdoor
-        #missing <- which(is.na(alljobs$industry))
-        #for (m in missing) {
-        #        cq <- gsub(" ", "+", alljobs$company[m])
-        #        cdata <- getGlassdoorData(cq)
-        #        if (length(cdata) > 0) {
-        #                alljobs[m, 11] <- cdata$industry
-        #                alljobs[m, 12] <- cdata$numberOfRatings
-        #                alljobs[m, 13] <- cdata$overallRating
-        #        }
-        #}
+        alljobs <- left_join(alljobs, unique(gd_data[,c(28,7,8,10)]), by="match_company_name")
 
         return(alljobs)
 }
@@ -297,22 +285,6 @@ constructIndeedURL <- function(start, jq, l, r) {
                 "&filter=1",
                 "&latlong=1",
                 "&co=us&chnl=&userip=1.2.3.4&useragent=Mozilla/%2F4.0%28Firefox%29&v=2&format=json")
-}
-
-getGlassdoorData <- function(cq) {
-        myurl <- paste0("http://api.glassdoor.com/api/api.htm?v=1&format=json&t.p=31640&t.k=j3G7m4V1Dbg",
-                        "&action=employers&city=&state=&userip=69.136.97.180",
-                        "&q=", cq,
-                        "&format=json&action=employers")
-        raw_data <- fromJSON(myurl, flatten=TRUE)
-        if (raw_data$success) {
-                company <- as.data.frame(raw_data$response$employers)[1,]
-                if (ncol(company) > 0) {
-                        #cat(q)
-                        cdata <- company[c(2,6,7,9)]
-                        return(cdata)
-                }
-        }
 }
 
 createJobLink <- function(labeltext, urltext, omd) {

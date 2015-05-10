@@ -10,7 +10,7 @@ mydb = dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='gl
 # Glassdoor ratings data
 dbSendQuery(mydb, 'drop table if exists CompanyRatings')
 
-dbWriteTable(mydb, name='CompanyRatings', value='gd_data_2015-05-04.024450.csv')
+dbWriteTable(mydb, name='CompanyRatings', value='gd_data_2015-05-10.013803.csv')
 
 rs = dbSendQuery(mydb, "select count(*) from CompanyRatings")
 db_data = fetch(rs, n=-1)

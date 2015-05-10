@@ -2,6 +2,7 @@ require("RCurl")
 require("jsonlite")
 
 # Glassdoor ratings data
+#start <- 1
 start <- nrow(gdata)/10 + 1  ## start from this page
 end <- start + 9
 finished <- FALSE
@@ -14,12 +15,17 @@ while (finished == FALSE) {
                 response   <- raw_data$response
                 page_count <- response$totalNumberOfPages
                 page       <- as.data.frame(response$employers)
-                page$employers.featuredReview.headline <- NULL
-                page$employers.featuredReview.pros <- NULL
-                page$employers.featuredReview.cons <- NULL
-                page$employers.ceo.image.src <- NULL
-                page$employers.ceo.image.height <- NULL
-                page$employers.ceo.image.width <- NULL
+                page$featuredReview.headline <- NULL
+                page$featuredReview.pros <- NULL
+                page$featuredReview.cons <- NULL
+                page$ceo.name <- NULL
+                page$ceo.title <- NULL
+                page$ceo.numberOfRatings <- NULL
+                #page$ceo.pctApprove <- NULL
+                #page$ceo.pctDisapprove <- NULL
+                page$ceo.image.src <- NULL
+                page$ceo.image.height <- NULL
+                page$ceo.image.width <- NULL
 
                 page[is.na(page)] <- " "
                 if (i > 1) {
@@ -30,9 +36,10 @@ while (finished == FALSE) {
         }
         Sys.sleep(10)
         start <- as.integer(nrow(gdata)/10) + 1  ## start from this page
+        Sys.sleep(10)
         end <- start + 9
-        cat("start=", start, " end=", end, " pages=", page_count)
-        if (end > min(page_count*10, 10000)) {
+        #cat("start=", start, " end=", end, " pages=", page_count)
+        if (end > min(page_count, 1000)) {
                 finished <- TRUE
                 fn <- paste0("gd_data_", paste0(substr(Sys.time(),1,10), ".",
                                         substr(Sys.time(),12,13),
