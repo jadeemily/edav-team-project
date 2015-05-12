@@ -40,13 +40,6 @@ function(input, output, session) {
         ##-------------------
         ## Job map
         ##-------------------
-        #                     "<br><strong>Job Title: </strong>", map_df$job_title,
-        #                     "<br><strong>Company: </strong>", map_df$company,
-        #                     "<br><strong>Date posted: </strong>", map_df$date,
-        #                     "<br><strong>Glassdoor industry: </strong>", map_df$industry,
-        #                     "<br><strong>Glassdoor number of reviews: </strong>", map_df$number_of_reviews,
-        #                     "<br><strong>Glassdoor overall rating: </strong>", map_df$overall_rating)
-
         scrape_pop <- paste0("<strong>City: </strong>", jobmap$city,
                              "<br><strong>Job Title: </strong>", jobmap$job_title,
                              "<br><strong>Company: </strong>", jobmap$company,
