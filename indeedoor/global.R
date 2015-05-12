@@ -248,3 +248,5 @@ reverseratingsVariables2 <<-list("Work Life Balance" = "workLifeBalanceRating",
 
 analysisvariables <<-list("Overall Rating" = 1, "Recommend to Friends Rating" = 2)
 
+
+
