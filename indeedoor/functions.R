@@ -130,6 +130,7 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                 fdata <- subset(largedata, data$industry == i)
                 if (nrow(fdata) > 40)
                 {
+                        #print (paste0("Industry is ", i, " and the number of companies is ", nrow(fdata)))
                         id <- fdata$id
                         name <- fdata$name
                         website <- fdata$website
@@ -173,11 +174,10 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
 
                 }
         }
-        clusteringdata<-na.omit(clusteringdata)
-        mostimportant<-na.omit(mostimportant)
-        clusters<-kmeans(clusteringdata,k, nstart=10)
+        clusteringdata <- na.omit(clusteringdata)
+        mostimportant <- na.omit(mostimportant)
+        clusters <- kmeans(clusteringdata, k, nstart=10)
 
-      
         xcluster<-data.frame()
         (xcluster<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], Clusters = paste0("Cluster ",clusters$cluster), v4 = nameofindustry))
         xcluster<-xcluster[1:nrow(clusteringdata),]
@@ -191,11 +191,15 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                 indices <- which(clusters$cluster[1:nrow(clusteringdata)] == i)
                 if(clustertype == 2)
                 {
-                clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables1[mostimportant[indices,1]],
+                clustertable[1:length(indices),i] <- paste0(nameofindustry[indices],
+                                                            ":                  ",
+                                                            ratingsVariables1[mostimportant[indices,1]],
                                                             " and ", ratingsVariables1[mostimportant[indices,2]])
                 }
                 else
-                {clustertable[1:length(indices),i] <- paste0(nameofindustry[indices], ":                  ", ratingsVariables2[mostimportant[indices,1]],
+                {clustertable[1:length(indices),i] <- paste0(nameofindustry[indices],
+                                                             ":                  ",
+                                                             ratingsVariables2[mostimportant[indices,1]],
                                                              " and ", ratingsVariables2[mostimportant[indices,2]])}
                 if (j < length(indices)){
                         j <- length(indices)
@@ -225,16 +229,13 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
                 city <- i$city
                 location <- i$formattedLocation
                 #posted_by <- i$source
-                #posting_date <- format(dmy_hms(i$date), format="%A, %h %d, %Y %T")
                 posting_date <- dmy_hms(i$date)
                 #snippet <- i$snippet
-                #url <- i$url
-                #onmousedown <- i$onmousedown
                 lat <- i$latitude
                 long <- i$longitude
                 #jobkey <- i$jobkey
                 sponsored <- i$sponsored
-                #expired <- i$expired
+                #expired <- i$expired              ## already FALSE for all jobs returned
                 #indeedApply <- i$indeedApply
                 posted_at <- i$formattedRelativeTime
                 page <- data.frame(job_title, job_link, posted_at, company, location, city,
