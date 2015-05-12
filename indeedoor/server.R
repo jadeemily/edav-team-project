@@ -7,7 +7,7 @@ library(maps)
 library(scales)
 library(rgdal)
 library(rCharts)
-library(ggvis)
+#library(ggvis)
 
 
 function(input, output, session) {
@@ -119,14 +119,14 @@ function(input, output, session) {
                 r1$guides(x = list(title = xlabel, max = 1.1*max(xx$v1), min = 1.1*min(xx$v1) ))
                 r1$guides(y = list(title = ylabel, max = 1.1*max(xx$v2), min = 1.1*min(xx$v2) ))
                 r1$addParams( dom = 'myChart')
-                
-                
+
+
                 #r1$set(dom = 'myChart')
                 return(r1)
         })
 
-             
-          
+
+
         output$clusters <- renderTable({
                 v <- cl_terms()
                 v$name

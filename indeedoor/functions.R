@@ -208,11 +208,6 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         list(plotdata=xcluster, name=clustertable[1:j,])
 })
 
-
-
-
-
-
 getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         ## Indeed returns a maximum of 25 jobs per call
         finished <- FALSE
