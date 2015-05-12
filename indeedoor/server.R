@@ -7,6 +7,8 @@ library(maps)
 library(scales)
 library(rgdal)
 library(rCharts)
+library(ggvis)
+
 
 function(input, output, session) {
         ##--------------------------------
@@ -107,10 +109,24 @@ function(input, output, session) {
                 #)
                 xlabel <- ratingsVariables1[[input$choice1]]
                 ylabel <- ratingsVariables1[[input$choice2]]
+                #  plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
+                #         col = v$plotdata[["v3"]],
+                #         pch = 20, cex = 3, xlab=xlabel, ylab=ylabel)
+                #  legend('topleft', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
+                xx<-v$plotdata
+                displaycolor<-xx$v3
+                r1 <- rPlot(v2 ~ v1, data = xx, color = "Clusters", type = 'point', tooltip = "#! function(item){return item.v4 } !#")
+                r1$guides(x = list(title = xlabel, max = 1.1*max(xx$v1), min = 1.1*min(xx$v1) ))
+                r1$guides(y = list(title = ylabel, max = 1.1*max(xx$v2), min = 1.1*min(xx$v2) ))
+                r1$addParams( dom = 'myChart')
+                
+                
+                #r1$set(dom = 'myChart')
+                return(r1)
+        })
 
-
-              #  plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
-
+             
+          
         output$clusters <- renderTable({
                 v <- cl_terms()
                 v$name
