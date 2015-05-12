@@ -179,7 +179,7 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         clusters <- kmeans(clusteringdata, k, nstart=10)
 
         xcluster<-data.frame()
-        (xcluster<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], Clusters = paste0("Cluster ",clusters$cluster), v4 = nameofindustry))
+        xcluster<-data.frame(row.names = NULL, v4 = nameofindustry, v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], Clusters = paste0("Cluster ",clusters$cluster))
         xcluster<-xcluster[1:nrow(clusteringdata),]
         clustertable<-array(,k*nrow(clusteringdata))
         dim(clustertable)<-c(nrow(clusteringdata),k)
@@ -205,7 +205,6 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                         j <- length(indices)
                 }
         }
-     #  browser() 
         list(plotdata=xcluster, name=clustertable[1:j,])
 })
 

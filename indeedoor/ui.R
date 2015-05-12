@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(leaflet)
+library(rCharts)
 
 dashboardPage(
         skin="purple",
@@ -167,6 +168,10 @@ dashboardPage(
                                                 showOutput("myChart","polycharts"),
                                 
                                                 #plotOutput("plot3"),
+
+                                                #plotOutput("myChart"),
+                                                #showOutput("myChart"),
+
                                                 h4("Clusters and top 2 important factors within industry"),
                                                 tableOutput("clusters")
                                         )
