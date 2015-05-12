@@ -40,7 +40,6 @@ function(input, output, session) {
         ##-------------------
         ## Job map
         ##-------------------
-        #scrape_pop <- paste0("<strong>City: </strong>", map_df$city,
         #                     "<br><strong>Job Title: </strong>", map_df$job_title,
         #                     "<br><strong>Company: </strong>", map_df$company,
         #                     "<br><strong>Date posted: </strong>", map_df$date,
@@ -60,16 +59,16 @@ function(input, output, session) {
         #                                          attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>%
         m2 <- leaflet(data = jobmap) %>% addTiles('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png',
               attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>%
-              setView(-73.9983273, 40.7471983, zoom = 12)%>%
-              addCircles(lat = ~ jobmap[,"lat"], lng = ~ jobmap[ ,"long"], color = '#4d4698',
-              radius = 200,
-              popup= scrape_pop,
-              weight = 3)
+              setView(-73.9983273, 40.7471983, zoom = 12) %>%
+              addCircles(lat = ~ jitter(jobmap[,"lat"],10), lng = ~ jitter(jobmap[ ,"long"],10), color = '#4d4698',
+                         radius = 200, popup = scrape_pop, weight = 3)
 
         withProgress({
                 setProgress(message = "Processing...")
                 output$ClistMap = renderLeaflet(m2)
         })
+
+        output$joblist2 <- renderDataTable(as.data.table(jobdt), options = list(paging=TRUE), escape = FALSE)
 
         ##-------------------
         ## Skills cloud
@@ -101,7 +100,6 @@ function(input, output, session) {
         ## Cluster analysis of ratings
         ##--------------------------------------------
         cl_terms <- reactive({
-
                 withProgress({
                         setProgress(message = "Processing...")
                         getRegressionAnalysis(input$choice1, input$choice2, as.numeric(input$k),input$typeofcluster)
@@ -111,6 +109,7 @@ function(input, output, session) {
 
         output$myChart <- renderChart({
                 v <- cl_terms()
+
                 #validate(
                 #  need(!is.null(input$choice1), "Processing..")
                 #)
