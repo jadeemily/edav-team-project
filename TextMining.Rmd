@@ -1,0 +1,130 @@
+---
+title: "MiningIndeed"
+author: "Jade"
+date: "Tuesday, April 28, 2015"
+output: html_document
+---
+The API call only shows us the job snippet, which isn't enough to mine. 
+
+```{r}
+xml.url <- "http://api.indeed.com/ads/apisearch?publisher=4751269202013823&q=data+scientist&l=new%2C+york&sort=&radius=&st=&jt=&start=&limit=&fromage=&filter=&latlong=1&co=us&chnl=&userip=1.2.3.4&useragent=Mozilla/%2F4.0%28Firefox%29&v=2"
+```
+
+There's a second API, which will yield a larger snippet, but only approx. 30 more words. Still not really enough to mine.
+```{r}
+xml.url <- "http://api.indeed.com/ads/apigetjobs?publisher=4751269202013823&jobkeys=62691d8c393b9dbd&v=2"
+```
+
+To get enough data for a POC, we'll extract the URL from the indeed job posting, scrape this text and mine it. URLS from API call
+```{r, echo=FALSE}
+URLs <- factor(c("http://www.indeed.com/viewjob?jk=fccf83fed33b8284", "http://www.indeed.com/viewjob?jk=15e16612eaa66a0e", "http://www.indeed.com/viewjob?jk=8f135f5c498d2a10", "http://www.indeed.com/viewjob?jk=48d38339127b8dce", "http://www.indeed.com/viewjob?jk=ebb44ef0a10aeebe", "http://www.indeed.com/viewjob?jk=03f2810d8e9e5ca2", "http://www.indeed.com/viewjob?jk=251eadc7e9f6dcaf", "http://www.indeed.com/viewjob?jk=653f431ce6b917b5", "http://www.indeed.com/viewjob?jk=4db692ff377a0eac", "http://www.indeed.com/viewjob?jk=9e5552ce659bba10"))
+
+data.frame(URLs)
+```
+Try using rvest() to scrape URLs from R. This is not successful, use import.io to scrape. Merge and organize in old, faithful friend Excel. Learned about Hadley Wickham's new readxl() R package at the NY R conference, let's try it out.
+
+<p>require(readxl)</p>
+<p>ALLDataScienceSkills <- read_excel("~/Shiny/wordFrequenciesAndSentencesALL.xls")</p>
+<p>summary(ALLDataScienceSkills)</p>
+<p>filterlistnew <- filter(ALLDataScienceSkills, Word!="NA")</p>
+<p>glimpse(filterlistnew)</p>
+
+
+<p>require(tm)</p>
+
+
+filterlistnew <- removeWords(filterlist, stopwords, c("data","hour","federal","within","hagan","yeeldr","bank","get","we're","ricci","top","ability","like","also","skill","working", "job","trend", "new","york", "ny","company","days","work","ago","one","opportunity","experience","scientist","education","city","program","state","use","capital","apply","etc","contact","equal","public","find","ll","employment","post","action","title","resume","inc","save","times","well","forum","require","well","terms","cookie","smart","upload","protect","resumesemployer","2015","search","keyword","high","responsibility","zip","jobsfind","indeed","privacy","help","sign","indeed.com","affirmative","veteran","review","policy","question", "email","world","disability","including","friend","demonstrate","student","candidate","us","real","knewton","include","view","price","employee","background","enstoa","benefit","status","environment"))
+
+filterlistnew <- wordStem(c ("machine", "learning", 'machine learning',"statistic", "statistics", 'statistics',"communicate","communication",'communication'))
+
+Write.csv(filterlistnew, file="cleandata")
+add this worksheet to the Excel workbook
+
+
+```{r, echo=TRUE}
+require(readxl)
+DataScienceSkills <- read_excel("~/Shiny/wordFrequenciesGrouped.xls", sheet="wordFrequencies")
+
+#Let's try to put this in a bar chart with some RColorBrewer() colors
+require(ggplot2)
+require(RColorBrewer)
+
+#show all the color brewer options available display.brewer.all()
+counts <- table(DataScienceSkills$Word, DataScienceSkills$Frequency)
+
+#count of which words appear the most frequently
+barplot(counts, main="Word Distribution and frequency", xlab="Frequency in selected job posts", ylab="# Words", col=brewer.pal(10,"Spectral"))
+
+```
+<p> Clustering is a good way to break down this data into smaller categories/groups. Let's see what happens naturally </p>
+```{r, echo=TRUE}
+d <- dist(DataScienceSkills) # distance matrix
+fit <- hclust(d) 
+plot(fit) # display dendogram
+groups <- cutree(fit, k=6) # cut tree into 6 clusters
+rect.hclust(fit, k=6, border="green") # draw dendogram with green borders around the 6 clusters 
+```
+<p> The cluster histogram doesn't reveal too much useful information about different types of categorical grouping. We want to analyze the postings for impactful words to add to a resume. *The grouping was done manually in Excel, but now that it has been done, the list can be used as a reference for future mining.  </p>
+```{r,echo=TRUE}
+#filtered lists
+require(dplyr)
+DataScienceSkills <- read_excel("~/Shiny/wordFrequenciesGrouped.xls", sheet="Withgrouping")
+specificskills <-filter(DataScienceSkills, Group %in% "specific skills")
+coursework <- filter(DataScienceSkills, Group %in% "relevant coursework")
+atwork <- filter(DataScienceSkills, Group %in% "at work")
+buzzwords <- filter(DataScienceSkills, Group %in% "buzzwords")
+expertise <- filter(DataScienceSkills, Group %in% "expertise")
+other <- filter(DataScienceSkills, Group %in% "other")
+```
+<b> These ten "specific skills" that might be helpful to have on your resume </b> </p>
+<br>Ex: <sp> Proficiency in <i> <u> Python, SQL, Hadoop, Tableau, MapReduce </u> </i> </p>
+```{r, echo=FALSE}
+print(specificskills)
+```
+<b> These six "coursework" words that might be helpful to include on your resume </b> </p>
+<br>Ex: <sp> Relevant <i> <u> Engineering </u> </i> coursework in: <i> <u> statistics, mathematics, machine learning, algorithms, computer science </i> </u> </p>
+```{r, echo=FALSE}
+print(coursework)
+```
+<b> These are the top "buzzwords" that might be helpful to have on your resume </b> </p>
+<br>Ex: <sp> <i> <u> Identify insights </u> </i>  to <u> <i> benchmark digital knowledge </u> </i> through use of <i> <u> big data and advanced analytics </u> </i> </p>
+```{r, echo=FALSE}
+print(buzzwords)
+```
+<b> These are the top "expertise" words that might be helpful to have on your resume. </b> </p> 
+<br>Ex: <sp> <i> <u> Create predictive models </u> </i> from <i> <u> large-scale data sets </u> </i> for <i> <u> analysis </u> </i> </p>
+```{r, echo=FALSE}
+print(expertise)
+```
+<b> These are the top words that might be helpful to have on your resume to describe your previous work experience </b>
+```{r, echo=FALSE}
+print(atwork)
+```
+<p> Here's an image of what I wanted to create</p>
+<img src="C:\Users\Jade Bailey-Assam\Documents\Shiny\Graph1.jpg" alt="alt text" title="top words" />
+<p> Ideally I wanted to create a stacked word cloud like this. I could not find an R package to do this, only word clouds. This is an ungrouped list of the most frequent words that appeared on job postings. Stop words and word stemming have been applied. </p>
+<img src="C:\Users\Jade Bailey-Assam\Documents\Shiny\stack-viewGeneral.png" alt="alt text" title="top words" />
+
+```{r, echo=FALSE}
+#A cleaner list of stop words, replaced words and stemmed words (phrases)
+#Word Stats/ChangesLibrary
+#Display Phrases
+
+#The following words have been defined as a phrase:
+
+#big data,front end,real-time, text mining, machine learning, identify relationships, data science, large scale, real time, computer science, web applications, relational database, web programming, data mining
+
+#The following words have been replaced.
+
+#[statistic, statistics] => statistics 
+#[math, mathematics] => mathematics 
+#[analytic, analysis] => analytics 
+#[large] => large-scale data sets [set] => data set 
+
+#Turned stemming on. A stemmer for English, for example, should identify the string "cats" (and possibly "catlike", "catty" etc.) as based on the root "cat". A stemming algorithm reduces the words "fishing", "fished", "fish", and "fisher" to the root word, "fish".
+
+#The following words have been removed from the general word cloud:
+
+#data, job, new york, ny, company, days, work, ago, one, opportunity, education, city, program, state, use, capital, apply, etc, contact, equal, public, find, ll, employment, post, action, title, resume, inc, save, times, well, forum, require, terms, cookie, smart, upload, protect, resumesemployer, 2015, search, keyword, high, responsibility, zip, jobsfind, indeed, privacy, help, sign, indeed.com, affirmative, veteran, review, policy, question, email, world, disability, including, friend, demonstrate, student, candidate, us, real, knewton, include, view, price, employee, background, enstoa, benefit, status, experience, scientist, salary, years, trend, working, law, skill, ability, hour, federal, re, 10, local, section, netmine, qualifications, position, open, grow, instruction, provide, excellent, iheartmedia, year, offer, money, browse, group, 30, api, host, jobs, million, act, qualified, agency, across, flexible, billion, gender, see, employer, mediabrand, initiative, critical, available, detection, learn, successful, independent, responsible, want, national, participate, full, senior, media, regulation, enable
+```
+

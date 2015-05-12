@@ -21,8 +21,8 @@ rs <- dbSendQuery(mydb, "select * from CompanyRatings")
 master_gd_data <- fetch(rs, n=-1)
 gd_data <- master_gd_data
 gd_data$match_company_name <- toupper(gd_data$name)
-names(gd_data)[7] <- "industry"
-names(gd_data)[8] <- "number_of_reviews"
+names(gd_data)[7]  <- "industry"
+names(gd_data)[8]  <- "number_of_reviews"
 names(gd_data)[10] <- "overall_rating"
 
 ## Read indeed data
@@ -33,7 +33,7 @@ names(all_indeed_data)[8] <- "job_title"
 all_indeed_data$match_company_name <- toupper(all_indeed_data$company)
 nyc_indeed_data <- filter(all_indeed_data, state %in% c('NY', 'NJ', 'CT'))
 
-## Get current jobs directly from Indeed API
+## Get current data science jobs from Indeed API
 alljobs <- getJobs()
 jobdt <- data.frame(alljobs$job_link, alljobs$posted_at, alljobs$company, alljobs$location, alljobs$posting_date,
                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
@@ -87,7 +87,9 @@ top <- summarize( by_industry,
                   mean(culture_and_values),
                   mean(compensation_and_benefits),
                   mean(work_life_balance),
-                  mean(career_opportunities))
+                  mean(career_opportunities),
+                  sum(mean(overall_rating), mean(culture_and_values), mean(compensation_and_benefits),
+                      mean(work_life_balance), mean(career_opportunities)) )
 
 by_industry <- group_by( dsjobs_by_company, industry )
 top_hiring <- summarize( by_industry,
@@ -96,28 +98,29 @@ top_hiring <- summarize( by_industry,
                          mean(culture_and_values),
                          mean(compensation_and_benefits),
                          mean(work_life_balance),
-                         mean(career_opportunities))
-
+                         mean(career_opportunities),
+                         sum(mean(overall_rating), mean(culture_and_values), mean(compensation_and_benefits),
+                             mean(work_life_balance), mean(career_opportunities)) )
 
 names(top) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
-                "compensation_and_benefits", "work_life_balance", "career_opportunities")
+                "compensation_and_benefits", "work_life_balance", "career_opportunities", "tiebreaker")
 names(top_hiring) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
-                "compensation_and_benefits", "work_life_balance", "career_opportunities")
+                "compensation_and_benefits", "work_life_balance", "career_opportunities", "tiebreaker")
 
-top <- filter( top, number_of_reviews >= 500 )
-top_hiring <- filter( top_hiring, number_of_reviews >= 500)
+top <- filter( top, number_of_reviews >= 400 )
+top_hiring <- filter( top_hiring, number_of_reviews >= 200)
 
 ratings_culture      <- filter( top, culture_and_values > 0 )
 ratings_compensation <- filter( top, compensation_and_benefits > 0 )
 ratings_worklife     <- filter( top, work_life_balance > 0 )
 ratings_career       <- filter( top, career_opportunities > 0 )
 
-top_overall      <- arrange( top, desc(overall_rating) )
-top_culture      <- arrange( top, desc(culture_and_values) )
-top_compensation <- arrange( top, desc(compensation_and_benefits) )
-top_worklife     <- arrange( top, desc(work_life_balance) )
-top_career       <- arrange( top, desc(career_opportunities) )
-top_hiring       <- arrange( top_hiring, desc(overall_rating) )
+top_overall      <- arrange( top, desc(round(overall_rating, 1)), desc(tiebreaker) )
+top_culture      <- arrange( top, desc(round(culture_and_values, 1)), desc(tiebreaker) )
+top_compensation <- arrange( top, desc(round(compensation_and_benefits, 1)), desc(tiebreaker) )
+top_worklife     <- arrange( top, desc(round(work_life_balance, 1)), desc(tiebreaker) )
+top_career       <- arrange( top, desc(round(career_opportunities, 1)), desc(tiebreaker) )
+top_hiring       <- arrange( top_hiring, desc(round(overall_rating, 1)), desc(tiebreaker) )
 
 top_overall      <- c( top_overall[1:25,1] )
 top_culture      <- c( top_culture[1:25,1] )
@@ -229,7 +232,6 @@ ratingsVariables1 <<-list("overallRating" = "Overall Rating",  "workLifeBalanceR
                           "cultureAndValuesRating"= "Culture and Values" , "seniorLeadershipRating" = "Senior Leadership",
                           "compensationAndBenefitsRating" = "Compensation and Benefits",  "careerOpportunitiesRating" = "Career Opportunities" ,
                           "pctApprove" = "CEO Approval" )
-
 
 reverseratingsVariables1 <<-list("Overall Rating" = "overallRating", "Work Life Balance" = "workLifeBalanceRating",
                           "Culture and Values" = "cultureAndValuesRating", "Senior Leadership" = "seniorLeadershipRating",

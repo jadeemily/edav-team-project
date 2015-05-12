@@ -68,7 +68,6 @@ getTermMatrix <- memoise(function(dbCity) {
         docs <- tm_map(docs, removeNumbers)
         docs <- tm_map(docs, removePunctuation)
         docs <- tm_map(docs, removeWords, stopwords("english"))
-        #docs <- tm_map(docs, removeWords, strsplit(readLines("custom_stop_words.txt"), "[:space:]+"))
         docs <- tm_map(docs, removeWords, c("experience", "will", "data", "analytics", "skills", "analytic", "analysis", "big",
                                             "team", "scientist", "scientists", "engineers", "work", "etc", "including", "background",
                                             "currently", "like", "least", "must", "information", "leading", "solution", "interested",

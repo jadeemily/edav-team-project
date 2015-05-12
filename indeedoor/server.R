@@ -60,6 +60,8 @@ function(input, output, session) {
                 output$ClistMap = renderLeaflet(m2)
         })
 
+        output$joblist2 <- renderDataTable(as.data.table(jobdt), options = list(paging=TRUE), escape = FALSE)
+
         ##-------------------
         ## Skills cloud
         ##-------------------

@@ -63,11 +63,12 @@ dashboardPage(
                         ),
 
                         tabItem(tabName='jobs',
-                                fluidPage(
+                                fluidRow(
                                         box(
-                                          title = h3('Data science job postings by location'),
+                                          title = h3('Data science job postings by location*'),
+                                          "*Locations are approximate",
                                           width = 12,
-                                          leafletOutput("ClistMap", "100%", 800),
+                                          leafletOutput("ClistMap", "100%", 600),
                                           hr(),
                                           withTags({
                                                 span(
@@ -77,6 +78,23 @@ dashboardPage(
                                                      img(src = 'http://www.indeed.com/p/jobsearch.gif',
                                                      style='border: 0;vertical-align: middle')
                                                    )))
+                                          })
+                                        )
+                                ),
+                                fluidRow(
+                                        box(
+                                          width = 12,
+                                          title = h3("Data science jobs in the New York City metro area"),
+                                          dataTableOutput('joblist2'),
+                                          hr(),
+                                          withTags({
+                                                span(
+                                                a(href='http://www.indeed.com/','jobs by',
+                                                  a(href  = 'http://www.indeed.com/',
+                                                    title = 'Job Search',
+                                                    img(src = 'http://www.indeed.com/p/jobsearch.gif',
+                                                    style='border: 0;vertical-align: middle')
+                                                 )))
                                           })
                                         )
                                 )
