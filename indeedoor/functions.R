@@ -130,7 +130,6 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                 fdata <- subset(largedata, data$industry == i)
                 if (nrow(fdata) > 40)
                 {
-                        print (paste0("Industry is ", i, " and the number of companies is ", nrow(fdata)))
                         id <- fdata$id
                         name <- fdata$name
                         website <- fdata$website
@@ -178,12 +177,10 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
         mostimportant<-na.omit(mostimportant)
         clusters<-kmeans(clusteringdata,k, nstart=10)
 
-        print("Clusters are printed here:")
-        print(sort(clusters$cluster))
-
-        x<-data.frame()
-        (x<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], v3 = clusters$cluster, v4 = nameofindustry))
-        x<-x[1:nrow(clusteringdata),]
+      
+        xcluster<-data.frame()
+        (xcluster<-data.frame(v1 = clusteringdata[,variable1], v2 = clusteringdata[,variable2], Clusters = paste0("Cluster ",clusters$cluster), v4 = nameofindustry))
+        xcluster<-xcluster[1:nrow(clusteringdata),]
         clustertable<-array(,k*nrow(clusteringdata))
         dim(clustertable)<-c(nrow(clusteringdata),k)
         j <- 1.0
@@ -204,14 +201,14 @@ getRegressionAnalysis <- memoise(function(variable1, variable2, k, clustertype){
                         j <- length(indices)
                 }
         }
-        list(plotdata=x, name=clustertable[1:j,])
+     #  browser() 
+        list(plotdata=xcluster, name=clustertable[1:j,])
 })
 
 
-all_values <- function(x) {
-  if(is.null(x)) return(NULL)
-  paste0(names(x), ": ", format(x), collapse = "<br />")
-}
+
+
+
 
 getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         ## Indeed returns a maximum of 25 jobs per call

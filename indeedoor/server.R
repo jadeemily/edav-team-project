@@ -6,6 +6,7 @@ library(leaflet)
 library(maps)
 library(scales)
 library(rgdal)
+library(rCharts)
 #library(ggvis)
 
 function(input, output, session) {
@@ -108,7 +109,7 @@ function(input, output, session) {
 
         })
 
-        output$plot3 <- renderPlot({
+        output$myChart <- renderChart({
                 v <- cl_terms()
                 #validate(
                 #  need(!is.null(input$choice1), "Processing..")
@@ -117,17 +118,21 @@ function(input, output, session) {
                 ylabel <- ratingsVariables1[[input$choice2]]
 
 
-                plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
-                       col = v$plotdata[["v3"]],
-                       pch = 20, cex = 3, xlab=xlabel, ylab=ylabel)
-                legend('topleft', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
-
-              #  v$plotdata %>% ggvis(~v1, ~v2, key := ~v4) %>% layer_points() %>%
-               #   add_tooltip(all_values, "hover") %>%
-                #  bind_shiny("plot3")
-               #  ggobj <- ggplot(v$plotdata,aes(x=v1, y = v2, size=8, color=v3))+geom_point()+ scale_colour_gradient(low="red", high = "blue") + ggtitle("Clusters and the Cluster Variables")
-              #  print(ggobj)
-        })
+              #  plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
+              #         col = v$plotdata[["v3"]],
+              #         pch = 20, cex = 3, xlab=xlabel, ylab=ylabel)
+              #  legend('topleft', legend = c(1:input$k), lty = 1, lwd = 4, col=c(1:input$k) ,  bty='n', cex=1.5)
+              xx<-v$plotdata
+              displaycolor<-xx$v3
+              r1 <- rPlot(v2 ~ v1, data = xx, color = "Clusters", type = 'point', tooltip = "#! function(item){    return item.v4 } !#")
+              r1$guides(x = list(title = xlabel, max = 1.1*max(xx$v1), min = 1.1*min(xx$v1) ))
+              r1$guides(y = list(title = ylabel, max = 1.1*max(xx$v2), min = 1.1*min(xx$v2) ))
+              r1$addParams( dom = 'myChart')
+              
+              
+              #r1$set(dom = 'myChart')
+              return(r1)
+                      })
 
         output$clusters <- renderTable({
                 v <- cl_terms()

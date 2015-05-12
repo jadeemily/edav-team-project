@@ -146,7 +146,9 @@ dashboardPage(
                                                   the ratings within an industry type.
                                                   You can vary the number of clusters and the plotting variables to observe what drives people in different kinds of industries."),
                                                 width = 9,
-                                                plotOutput("plot3"),
+                                                showOutput("myChart","polycharts"),
+                                
+                                                #plotOutput("plot3"),
                                                 h4("Clusters and top 2 important factors within industry"),
                                                 tableOutput("clusters")
                                         )
