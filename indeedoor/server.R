@@ -7,6 +7,7 @@ library(maps)
 library(scales)
 library(rgdal)
 library(rCharts)
+
 #library(ggvis)
 
 
@@ -104,9 +105,9 @@ function(input, output, session) {
         output$myChart <- renderChart({
                 v <- cl_terms()
 
-                #validate(
-                #  need(!is.null(input$choice1), "Processing..")
-                #)
+                shiny::validate(
+                  need(try(!is.null(input$choice1)), "Processing..")
+                )
                 xlabel <- ratingsVariables1[[input$choice1]]
                 ylabel <- ratingsVariables1[[input$choice2]]
                 #  plot(v$plotdata[["v1"]],v$plotdata[["v2"]],
