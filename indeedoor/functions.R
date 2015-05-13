@@ -35,6 +35,7 @@ prepIndustryPlot <- function(top_rated, ratings, rating_type) {
 
         pdata <- transform( pdata, category2 = factor(paste(industry, rating)) )
         pdata <- transform( pdata, category2 = reorder(category2, rank(rating), ordered=TRUE) )
+        #pdata$industry <- substr(pdata$industry, 1, 32)
         return(pdata)
 }
 
@@ -259,7 +260,7 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
         indx <- alljobs$match_company_name %in% company_lookup$Indeed
         alljobs$match_company_name[indx] <- sub("(^[[:space:]]+|[[:space:]]+$)", "", company_lookup$Glassdoor[x[indx]])
 
-        alljobs <- left_join(alljobs, unique(gd_data[,c(28,7,8,10)]), by="match_company_name")
+        alljobs <- left_join(alljobs, unique(gd_data[,c(29,7,8,9,28)]), by="match_company_name")
 
         return(alljobs)
 }

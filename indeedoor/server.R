@@ -23,13 +23,13 @@ function(input, output, session) {
                         setProgress(message = "Processing...")
                         if (x == "overall rating") {
                                 overall_rating_plot
-                        } else if (x == "culture and values") {
+                        } else if (x == "culture and values rating") {
                                 culture_rating_plot
-                        } else if (x == "compensation and benefits") {
+                        } else if (x == "compensation and benefits rating") {
                                 compensation_rating_plot
-                        } else if (x == "career opportunities") {
+                        } else if (x == "career opportunities rating") {
                                 career_opportunities_plot
-                        } else if (x == "work-life balance") {
+                        } else if (x == "work-life balance rating") {
                                 worklife_plot
                         } else if (x == "overall rating (hiring data scientists)") {
                                 hiring_plot
@@ -43,8 +43,8 @@ function(input, output, session) {
         ## Job map
         ##-------------------
         scrape_pop <- paste0("<strong>City: </strong>", jobmap$city,
-                             "<br><strong>Job Title: </strong>", jobmap$job_title,
                              "<br><strong>Company: </strong>", jobmap$company,
+                             "<br><strong>Job Title: </strong>", jobmap$job_title,
                              "<br><strong>When posted: </strong>", jobmap$posted_at,
                              "<br><strong>Glassdoor industry: </strong>", jobmap$industry,
                              "<br><strong>Glassdoor number of reviews: </strong>", jobmap$number_of_reviews,

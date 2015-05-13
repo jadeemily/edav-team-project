@@ -24,10 +24,10 @@ dashboardPage(
                                           radioButtons("industry_plot", "Sort by:",
                                           c("Overall rating (hiring data scientists)" = "overall rating (hiring data scientists)",
                                             "Overall rating" = "overall rating",
-                                            "Culture and values" = "culture and values",
-                                            "Compensation and benefits" = "compensation and benefits",
-                                            "Work-life balance" = "work-life balance",
-                                            "Career opportunities" = "career opportunities"),
+                                            "Culture and values" = "culture and values rating",
+                                            "Compensation and benefits" = "compensation and benefits rating",
+                                            "Work-life balance" = "work-life balance rating",
+                                            "Career opportunities" = "career opportunities rating"),
                                             selected = "overall rating (hiring data scientists)",
                                             inline = TRUE)
                                         )
@@ -59,7 +59,14 @@ dashboardPage(
                                                     img(src = 'http://www.indeed.com/p/jobsearch.gif',
                                                         style='border: 0;vertical-align: middle')))
                                                 )
-                                          }))
+                                          }),
+                                          br(),
+                                          withTags({
+                                                  a(href='http://www.glassdoor.com/index.htm',
+                                                    'powered by', img(src='http://www.glassdoor.com/static/img/api/glassdoor_logo_80.png'))
+
+                                          })
+                                        )
                                 )
                         ),
 
@@ -96,6 +103,12 @@ dashboardPage(
                                                     img(src = 'http://www.indeed.com/p/jobsearch.gif',
                                                     style='border: 0;vertical-align: middle')
                                                  )))
+                                          }),
+                                          br(),
+                                          withTags({
+                                                  a(href='http://www.glassdoor.com/index.htm',
+                                                    'powered by', img(src='http://www.glassdoor.com/static/img/api/glassdoor_logo_80.png'))
+
                                           })
                                         )
                                 )
@@ -166,12 +179,6 @@ dashboardPage(
                                                   You can vary the number of clusters and the plotting variables to observe what drives people in different kinds of industries."),
                                                 width = 9,
                                                 showOutput("myChart","polycharts"),
-                                
-                                                #plotOutput("plot3"),
-
-                                                #plotOutput("myChart"),
-                                                #showOutput("myChart"),
-
                                                 h4("Clusters and top 2 important factors within industry"),
                                                 tableOutput("clusters")
                                         )
@@ -185,5 +192,3 @@ dashboardPage(
                 })
         )
 )
-
-

@@ -21,10 +21,11 @@ mydb <- dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='g
 rs <- dbSendQuery(mydb, "select * from CompanyRatings")
 master_gd_data <- fetch(rs, n=-1)
 gd_data <- master_gd_data
+gd_data$overall_rating <- paste0(gd_data$overallRating, "-", gd_data$ratingDescription)
+gd_data$squareLogo <- paste0('<img src="', gd_data$squareLogo, '" alt="', gd_data$name, '" height="42" width="42">')
 gd_data$match_company_name <- toupper(gd_data$name)
 names(gd_data)[7] <- "industry"
 names(gd_data)[8] <- "number_of_reviews"
-names(gd_data)[10] <- "overall_rating"
 
 ## Read indeed data
 rs <- dbSendQuery(mydb, "select * from IndeedAnalyticsByTopCities")
@@ -36,10 +37,17 @@ nyc_indeed_data <- filter(all_indeed_data, state %in% c('NY', 'NJ', 'CT'))
 
 ## Get current jobs directly from Indeed API
 alljobs <- getJobs()
-jobdt <- data.frame(alljobs$job_link, alljobs$posted_at, alljobs$company, alljobs$location, alljobs$posting_date,
+
+## This would include the company logo in the data table.
+#jobdt <- data.frame(alljobs$squareLogo, alljobs$company, alljobs$job_link, alljobs$posted_at, alljobs$location, alljobs$posting_date,
+#                    alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
+#colnames(jobdt) <- c('', 'Company', 'Job title', 'How recent', 'Location', 'Posting date',
+#                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating')
+
+jobdt <- data.frame(alljobs$company, alljobs$job_link, alljobs$posted_at, alljobs$location, alljobs$posting_date,
                     alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
-colnames(jobdt) <- c('Job title', 'How recent', 'Company', 'Location', 'Posting date',
-                       'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating')
+colnames(jobdt) <- c('Company', 'Job title', 'How recent', 'Location', 'Posting date',
+                     'Glassdoor industry', 'Glassdoor number of reviews', 'Glassdoor overall company rating')
 
 jobmap <- data.frame(alljobs$lat, alljobs$long, alljobs$city, alljobs$job_link, alljobs$company, alljobs$posted_at,
                      alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
@@ -103,14 +111,13 @@ top_hiring <- summarize( by_industry,
                          sum(mean(overall_rating), mean(culture_and_values), mean(compensation_and_benefits),
                              mean(work_life_balance), mean(career_opportunities)) )
 
-
 names(top) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
                 "compensation_and_benefits", "work_life_balance", "career_opportunities", "tiebreaker")
 names(top_hiring) <- c("industry", "number_of_reviews", "overall_rating", "culture_and_values",
                 "compensation_and_benefits", "work_life_balance", "career_opportunities", "tiebreaker")
 
 top <- filter( top, number_of_reviews >= 500 )
-top_hiring <- filter( top_hiring, number_of_reviews >= 400)
+top_hiring <- filter( top_hiring, number_of_reviews >= 100)
 
 ratings_culture      <- filter( top, culture_and_values > 0 )
 ratings_compensation <- filter( top, compensation_and_benefits > 0 )
@@ -215,11 +222,6 @@ hiring_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         theme(axis.title.y = element_blank()) +
         theme(axis.title.x = element_blank()) +
         theme(axis.text.x = element_blank())
-
-##------------------------------
-## Prepare map data and tooltips
-## -----------------------------
-#map_df <- left_join(all_indeed_data, gd_data[,c(31,7,8,10)], by="match_company_name")
 
 ##--------------------------------------------------------------
 ## Prepare skills word cloud and friend recommendation analysis
