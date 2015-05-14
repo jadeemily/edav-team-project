@@ -136,7 +136,9 @@ top_culture      <- c( top_culture[1:25,1] )
 top_compensation <- c( top_compensation[1:25,1] )
 top_worklife     <- c( top_worklife[1:25,1] )
 top_career       <- c( top_career[1:25,1] )
-top_hiring       <- c( top_hiring[1:25,1] )
+
+n <- nrow(top_hiring) - (nrow(top_hiring) %% 5)  ## limit the number of multiples to a factor of 5
+top_hiring <- c( top_hiring[1:n,1] )
 
 pdata <- prepIndustryPlot(top_overall, rating_data, "overall")
 overall_rating_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
