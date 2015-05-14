@@ -50,8 +50,6 @@ function(input, output, session) {
                              "<br><strong>Glassdoor number of reviews: </strong>", jobmap$number_of_reviews,
                              "<br><strong>Glassdoor overall rating: </strong>", jobmap$overall_rating)
 
-        #m2 <- leaflet(data = map_df) %>% addTiles('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png',
-        #                                          attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>%
         m2 <- leaflet(data = jobmap) %>% addTiles('http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png',
               attribution = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>') %>%
               setView(-73.9983273, 40.7471983, zoom = 12) %>%

@@ -35,7 +35,6 @@ prepIndustryPlot <- function(top_rated, ratings, rating_type) {
 
         pdata <- transform( pdata, category2 = factor(paste(industry, rating)) )
         pdata <- transform( pdata, category2 = reorder(category2, rank(rating), ordered=TRUE) )
-        #pdata$industry <- substr(pdata$industry, 1, 32)
         return(pdata)
 }
 
@@ -249,9 +248,14 @@ getJobs <- function(start='', jq='data+scientist', l='10199', r=50) {
                 }
         }
 
-        # We only want jobs with 'data' in the job title;  Indeed search results are too broad
-        alljobs <- alljobs[c(grep("data", alljobs$job_title, ignore.case=TRUE)),]
+        # Indeed search results are too broad
+        djobs <- alljobs[c(grep("data", alljobs$job_title, ignore.case=TRUE)),]
+        ajobs <- alljobs[c(grep("analytics", alljobs$job_title, ignore.case=TRUE)),]
+        alljobs <- rbind(djobs, ajobs)
+        alljobs <- unique(alljobs)
         alljobs <- arrange(alljobs, desc(posting_date))
+        #rm(list=c(djobs, ajobs))
+
 
         # Perform lookup and substitution for certain company names that we know do not match between Indeed and Glassdoor
         alljobs$match_company_name <- toupper(alljobs$company)

@@ -21,7 +21,7 @@ mydb <- dbConnect(MySQL(), user='STATW4701', password='V1sual1zati0n', dbname='g
 rs <- dbSendQuery(mydb, "select * from CompanyRatings")
 master_gd_data <- fetch(rs, n=-1)
 gd_data <- master_gd_data
-gd_data$overall_rating <- paste0(gd_data$overallRating, "-", gd_data$ratingDescription)
+gd_data$overall_rating <- paste0(sprintf(gd_data$overallRating, fmt='%#.1f'), "-", gd_data$ratingDescription)
 gd_data$squareLogo <- paste0('<img src="', gd_data$squareLogo, '" alt="', gd_data$name, '" height="42" width="42">')
 gd_data$match_company_name <- toupper(gd_data$name)
 names(gd_data)[7] <- "industry"

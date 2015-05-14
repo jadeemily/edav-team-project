@@ -20,7 +20,7 @@ dashboardPage(
                         tabItem(tabName="industries",
                                 fluidRow(
                                         box(
-                                          width = 12,
+                                         width = 12,
                                           radioButtons("industry_plot", "Sort by:",
                                           c("Overall rating (hiring data scientists)" = "overall rating (hiring data scientists)",
                                             "Overall rating" = "overall rating",
@@ -35,20 +35,19 @@ dashboardPage(
                                 fluidRow(
                                         box(
                                           width = 12,
-                                          title = h3(textOutput("text1")),
+                                          title = textOutput("text1"),
                                           plotOutput("plot1", height="700px", width="100%"),
                                           hr(),
                                           withTags({
                                                   a(href='http://www.glassdoor.com/index.htm',
                                                     'powered by', img(src='http://www.glassdoor.com/static/img/api/glassdoor_logo_80.png'))
-
                                           })
                                         )
                                 ),
                                 fluidRow(
                                         box(
                                           width = 12,
-                                          title = h3("Data science jobs in the New York City metro area"),
+                                          title = "Data science jobs in the New York City metro area",
                                           dataTableOutput('joblist'),
                                           hr(),
                                           withTags({
@@ -73,7 +72,7 @@ dashboardPage(
                         tabItem(tabName='jobs',
                                 fluidRow(
                                         box(
-                                          title = h3('Data science job postings by location*'),
+                                          title = "Data science job postings by location*",
                                           "*Locations are approximate",
                                           width = 12,
                                           leafletOutput("ClistMap", "100%", 600),
@@ -92,7 +91,7 @@ dashboardPage(
                                 fluidRow(
                                         box(
                                           width = 12,
-                                          title = h3("Data science jobs in the New York City metro area"),
+                                          title = "Data science jobs in the New York City metro area",
                                           dataTableOutput('joblist2'),
                                           hr(),
                                           withTags({
@@ -117,7 +116,7 @@ dashboardPage(
                         tabItem(tabName="skills",
                                 fluidRow(
                                         box(
-                                                title = h3("Selection"),
+                                                title = "Selection",
                                                 width = 3,
                                                 height = 800,
                                                 selectInput("selection", "Choose a city:",
@@ -141,7 +140,8 @@ dashboardPage(
                                                 })
                                         ),
                                         box(
-                                                title = h3("Frequent words found in Data Science job postings"),
+                                                title = "Frequent words found in Data Science job postings",
+                                                hr(),
                                                 width = 9,
                                                 height = 800,
                                                 plotOutput("plot2")
@@ -152,9 +152,9 @@ dashboardPage(
                         tabItem(tabName="friends",
                                 fluidRow(
                                         box(
-                                                title = h3("Selection"),
+                                                title = "Selection",
                                                 width = 3,
-                                                height = 1000,
+                                                height = 600,
                                                 sliderInput("k",
                                                             "Number of Clusters:",
                                                             min = 2,  max = 8, value = 3),
@@ -171,7 +171,7 @@ dashboardPage(
                                                 })
                                         ),
                                         box(
-                                                title = h3("What makes people recommend companies?"),
+                                                title = "What makes people recommend companies?",
                                                 print("We perform cluster analysis of the companies.
                                                  Overall Rating or Recommend To Friends is modeled as a function of the remaining ratings factors and the similar industries are then clustered.
                                                   We plot the clusters as a function of two of the factors and also list out the top two most important factors that influence
