@@ -7,8 +7,7 @@ library(maps)
 library(scales)
 library(rgdal)
 library(rCharts)
-
-#library(ggvis)
+library(ggvis)
 
 
 function(input, output, session) {
