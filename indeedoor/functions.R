@@ -287,3 +287,12 @@ constructIndeedURL <- function(start, jq, l, r) {
 createJobLink <- function(labeltext, urltext, omd) {
         paste0('<a onmousedown="', omd, '" href="', urltext, '" target="_blank">', labeltext, '</a>')
 }
+
+getResumeWords <- function(input_group) {
+        rw <- filter(resume_words, Group == input_group)
+        rw <- arrange(rw, desc(Frequency), Word)
+        rw$Group <- NULL
+        rw <- rw[1:min(20, nrow(rw)),]
+        return(rw)
+}
+

@@ -8,10 +8,12 @@ dashboardPage(
         dashboardHeader(title = "indeedoor"),
         dashboardSidebar(
                 sidebarMenu(
-                        menuItem("Industries", tabName="industries", icon=icon("bar-chart")),
+                        menuItem("Industries", tabName="industries",  icon=icon("bar-chart")),
                         menuItem("Jobs", tabName="jobs", icon=icon("map-marker")),
                         menuItem("Skills", tabName="skills", icon=icon("asterisk")),
-                        menuItem("Ratings Analysis", tabName="friends", icon=icon("users"))
+                        menuItem("Ratings analysis", tabName="friends", icon=icon("users")),
+                        menuItem(HTML("R&eacutesum&eacute help"), tabName="resume_help", icon=icon("wrench")),
+                        menuItem("Contact us", icon=icon("envelope"), href="mailto:info@indeedoor.com")
                 )
         ),
 
@@ -154,7 +156,7 @@ dashboardPage(
                                         box(
                                                 title = "Selection",
                                                 width = 3,
-                                                height = 600,
+                                                height = 500,
                                                 sliderInput("k",
                                                             "Number of Clusters:",
                                                             min = 2,  max = 8, value = 3),
@@ -181,6 +183,31 @@ dashboardPage(
                                                 showOutput("myChart","polycharts"),
                                                 h4("Clusters and top 2 important factors within industry"),
                                                 tableOutput("clusters")
+                                        )
+                                )
+                        ),
+
+                        tabItem(tabName="resume_help",
+                                fluidRow(
+                                        box(
+                                                title = HTML("Helpful keywords to have on your r&eacutesum&eacute"),
+                                                width = 12,
+                                                height = 1000,
+                                                HTML("This is a prototype for a feature that would read a job posting and suggest important r&eacutesum&eacute; keywords that a
+                                                qualified applicant should have.  The results shown here are based on a random sample of data science job postings in the New York City area on a given day in April 2015."),
+                                                hr(),
+                                                radioButtons("resume_category", "Show:",
+                                                             c("Skills" = "specific skills",
+                                                               "Coursework" = "relevant coursework",
+                                                               "Expertise" = "expertise",
+                                                               "At work" = "work related",
+                                                               "Buzzwords" = "buzzwords"),
+                                                             selected = "specific skills",
+                                                             inline = TRUE),
+                                                hr(),
+                                                tags$strong(textOutput("rwtext")),
+                                                br(),
+                                                tableOutput("rwtable")
                                         )
                                 )
                         )

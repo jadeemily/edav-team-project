@@ -9,7 +9,6 @@ library(rgdal)
 library(rCharts)
 library(ggvis)
 
-
 function(input, output, session) {
         ##--------------------------------
         ## Industry analysis and job list
@@ -41,7 +40,7 @@ function(input, output, session) {
         ##-------------------
         ## Job map
         ##-------------------
-        scrape_pop <- paste0("<strong>City: </strong>", jobmap$city,
+        scrape_pop <- paste0("<strong>Location: </strong>", jobmap$city,
                              "<br><strong>Company: </strong>", jobmap$company,
                              "<br><strong>Job Title: </strong>", jobmap$job_title,
                              "<br><strong>When posted: </strong>", jobmap$posted_at,
@@ -138,6 +137,7 @@ function(input, output, session) {
           #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
 
         })
+
         output$parameterControls2 <- renderUI({
                 xx <- getVariables(input$typeofcluster)
                 selectInput("choice2", "Choose Ratings Variable #2:",
@@ -146,5 +146,12 @@ function(input, output, session) {
                 #                choices = ratingsVariables1, selected = "cultureAndValuesRating")
 
         })
+
+        ##--------------------------------------------
+        ## Resume keywords (prototype)
+        ##--------------------------------------------
+        output$rwtext  <- renderText(paste("Top", input$resume_category))
+        output$rwtable <- renderTable(getResumeWords(input$resume_category))
+
 }
 

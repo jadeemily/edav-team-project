@@ -38,7 +38,7 @@ nyc_indeed_data <- filter(all_indeed_data, state %in% c('NY', 'NJ', 'CT'))
 ## Get current jobs directly from Indeed API
 alljobs <- getJobs()
 
-## This would include the company logo in the data table.
+## This would include the company logo in the data table.  Leaving off for now.
 #jobdt <- data.frame(alljobs$squareLogo, alljobs$company, alljobs$job_link, alljobs$posted_at, alljobs$location, alljobs$posting_date,
 #                    alljobs$industry, alljobs$number_of_reviews, alljobs$overall_rating)
 #colnames(jobdt) <- c('', 'Company', 'Job title', 'How recent', 'Location', 'Posting date',
@@ -59,23 +59,27 @@ colnames(jobmap) <- c('lat', 'long', 'city', 'job_title', 'company', 'posted_at'
 ## Inner join of glassdoor ratings with NY area data science jobs for one of the plots
 matches_only <- inner_join(gd_data, alljobs, by="match_company_name")
 matches_only <- filter(matches_only, industry.x != '')
-dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 16, 15, 39)])
-names(dsjobs_by_company) <- c("company_name",
-                              "industry",
-                              "number_of_reviews",
-                              "overall_rating",
-                              "culture_and_values",
-                              "compensation_and_benefits",
-                              "work_life_balance",
-                              "career_opportunities",
-                              "job_title")
-dsjobs_by_company$culture_and_values        <- as.numeric(dsjobs_by_company$culture_and_values)
-dsjobs_by_company$compensation_and_benefits <- as.numeric(dsjobs_by_company$compensation_and_benefits)
-dsjobs_by_company$work_life_balance         <- as.numeric(dsjobs_by_company$work_life_balance)
-dsjobs_by_company$career_opportunities      <- as.numeric(dsjobs_by_company$career_opportunities)
+#dsjobs_by_company <- data.frame(matches_only[,c(3, 7, 8, 10, 12, 14, 16, 15, 39)])
+ds_companies <- data.frame(matches_only[,c(3,7,8,10,12,14,16,15)])
+ds_companies <- unique(ds_companies)
+
+names(ds_companies) <- c("company_name",
+                         "industry",
+                         "number_of_reviews",
+                         "overall_rating",
+                         "culture_and_values",
+                         "compensation_and_benefits",
+                         "work_life_balance",
+                         "career_opportunities")
+
+ds_companies$overall_rating            <- as.numeric(ds_companies$overall_rating)
+ds_companies$culture_and_values        <- as.numeric(ds_companies$culture_and_values)
+ds_companies$compensation_and_benefits <- as.numeric(ds_companies$compensation_and_benefits)
+ds_companies$work_life_balance         <- as.numeric(ds_companies$work_life_balance)
+ds_companies$career_opportunities      <- as.numeric(ds_companies$career_opportunities)
 
 ## Prepare industry rating data for plotting
-rating_data  <- gd_data[,c(7,8,10,12,14,15,16)]
+rating_data  <- gd_data[,c(7,8,10,12,14,16,15)]
 names(rating_data) <- c("industry",
                         "number_of_reviews",
                         "overall_rating",
@@ -83,12 +87,13 @@ names(rating_data) <- c("industry",
                         "compensation_and_benefits",
                         "work_life_balance",
                         "career_opportunities")
+rating_data$overall_rating            <- as.numeric(rating_data$overall_rating)
 rating_data$culture_and_values        <- as.numeric(rating_data$culture_and_values)
 rating_data$compensation_and_benefits <- as.numeric(rating_data$compensation_and_benefits)
 rating_data$work_life_balance         <- as.numeric(rating_data$work_life_balance)
 rating_data$career_opportunities      <- as.numeric(rating_data$career_opportunities)
 
-## Compute top 25 industries by each rating category
+## Compute top industries for each rating category
 by_industry <- group_by( rating_data, industry )
 top <- summarize( by_industry,
                   sum(number_of_reviews),
@@ -100,7 +105,7 @@ top <- summarize( by_industry,
                   sum(mean(overall_rating), mean(culture_and_values), mean(compensation_and_benefits),
                       mean(work_life_balance), mean(career_opportunities)) )
 
-by_industry <- group_by( dsjobs_by_company, industry )
+by_industry <- group_by( ds_companies, industry )
 top_hiring <- summarize( by_industry,
                          sum(number_of_reviews),
                          mean(overall_rating),
@@ -124,7 +129,7 @@ ratings_compensation <- filter( top, compensation_and_benefits > 0 )
 ratings_worklife     <- filter( top, work_life_balance > 0 )
 ratings_career       <- filter( top, career_opportunities > 0 )
 
-top_overall      <- arrange( top, desc(round(overall_rating,1)), desc(tiebreaker) )
+top_overall      <- arrange( top, desc(round(overall_rating, 1)), desc(tiebreaker) )
 top_culture      <- arrange( top, desc(round(culture_and_values, 1)), desc(tiebreaker) )
 top_compensation <- arrange( top, desc(round(compensation_and_benefits, 1)), desc(tiebreaker) )
 top_worklife     <- arrange( top, desc(round(work_life_balance, 1)), desc(tiebreaker) )
@@ -137,11 +142,11 @@ top_compensation <- c( top_compensation[1:25,1] )
 top_worklife     <- c( top_worklife[1:25,1] )
 top_career       <- c( top_career[1:25,1] )
 
-n <- nrow(top_hiring) - (nrow(top_hiring) %% 5)  ## keep it to a multiple of 5
-top_hiring <- c( top_hiring[1:n,1] )
+n <- min(25, nrow(top_hiring) - (nrow(top_hiring) %% 5))  ## keep it to a multiple of 5
+top_hiring <- c( top_hiring[1:n, 1] )
 
 pdata <- prepIndustryPlot(top_overall, rating_data, "overall")
-overall_rating_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
+overall_rating_plot <<- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         geom_bar(stat="identity", position=position_dodge(), aes(order=rating)) +
         geom_text(data=pdata, aes(x=category2, y=rating, ymax=rating, group=category, label=rating, vjust=1.8),
                   position=position_dodge(width=0.9), size=4) +
@@ -155,7 +160,7 @@ overall_rating_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) 
         theme(axis.text.x = element_blank())
 
 pdata <- prepIndustryPlot(top_culture, rating_data, "culture_and_values")
-culture_rating_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
+culture_rating_plot <<- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         geom_bar(stat="identity", position=position_dodge(), aes(order=rating)) +
         geom_text(data=pdata, aes(x=category2, y=rating, ymax=rating, group=category, label=rating, vjust=1.8),
                   position=position_dodge(width=0.9), size=4) +
@@ -169,7 +174,7 @@ culture_rating_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) 
         theme(axis.text.x = element_blank())
 
 pdata <- prepIndustryPlot(top_compensation, rating_data, "compensation_and_benefits")
-compensation_rating_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
+compensation_rating_plot <<- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         geom_bar(stat="identity", position=position_dodge(), aes(order=rating)) +
         geom_text(data=pdata, aes(x=category2, y=rating, ymax=rating, group=category, label=rating, vjust=1.8),
                   position=position_dodge(width=0.9), size=4) +
@@ -183,7 +188,7 @@ compensation_rating_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=catego
         theme(axis.text.x = element_blank())
 
 pdata <- prepIndustryPlot(top_career, rating_data, "career_opportunities")
-career_opportunities_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
+career_opportunities_plot <<- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         geom_bar(stat="identity", position=position_dodge(), aes(order=rating)) +
         geom_text(data=pdata, aes(x=category2, y=rating, ymax=rating, group=category, label=rating, vjust=1.8),
                   position=position_dodge(width=0.9), size=4) +
@@ -197,7 +202,7 @@ career_opportunities_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=categ
         theme(axis.text.x = element_blank())
 
 pdata <- prepIndustryPlot(top_worklife, rating_data, "work_life_balance")
-worklife_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
+worklife_plot <<- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         geom_bar(stat="identity", position=position_dodge(), aes(order=rating)) +
         geom_text(data=pdata, aes(x=category2, y=rating, ymax=rating, group=category, label=rating, vjust=1.8),
                   position=position_dodge(width=0.9), size=4) +
@@ -210,7 +215,7 @@ worklife_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         theme(axis.title.x = element_blank()) +
         theme(axis.text.x = element_blank())
 
-ds_ratings <- dsjobs_by_company[,2:8]
+ds_ratings <- ds_companies[,2:8]
 pdata <- prepIndustryPlot( top_hiring, ds_ratings, "hiring")
 hiring_plot <- ggplot(pdata, aes(x=category2, y=rating, fill=category)) +
         geom_bar(stat="identity", position=position_dodge(), aes(order=rating)) +
@@ -257,3 +262,7 @@ reverseratingsVariables2 <<-list("Work Life Balance" = "workLifeBalanceRating",
 
 analysisvariables <<-list("Overall Rating" = 1, "Recommend to Friends Rating" = 2)
 
+##--------------------------------------
+## Prepare resume help
+##--------------------------------------
+resume_words <<- read.csv("./Data/WordFrequenciesGroupedShiny.csv", stringsAsFactors=FALSE, header=TRUE)
