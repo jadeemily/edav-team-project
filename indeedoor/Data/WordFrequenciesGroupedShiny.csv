@@ -1,0 +1,99 @@
+Word,Frequency,Group
+model,24,expertise
+tool,22,expertise
+statistics,18,relevant coursework
+mathematics,17,relevant coursework
+analytics,16,buzzwords
+large-scale data sets,15,expertise
+machine learning,15,relevant coursework
+technology,15,expertise
+system,14,expertise
+algorithms,13,relevant coursework
+analysis,13,expertise
+create,12,expertise
+technical,12,expertise
+implement,12,expertise
+design,12,expertise
+engineer,12,relevant coursework
+complex,12,expertise
+consulting,11,work related
+database,11,expertise
+python,11,specific skills
+advanced,11,buzzwords
+service,10,other
+visualize,10,expertise
+customer,10,work related
+report,10,expertise
+code,10,expertise
+project,10,work related
+content,9,expertise
+solution,9,expertise
+build,9,buzzwords
+knowledge,9,buzzwords
+digital,8,buzzwords
+sql,8,specific skills
+user,8,other
+industry,8,work related
+scale,8,other
+application,7,expertise
+hadoop,7,specific skills
+communication,11,work related
+practice,7,other
+production,7,specific skills
+quantitative,7,buzzwords
+analyst,7,expertise
+passion,6,other
+management,6,other
+research,6,buzzwords
+data science,6,other
+big data,6,buzzwords
+requirement,6,other
+organization,6,other
+financial,6,other
+computer science,6,relevant coursework
+collaborate,6,work related
+integrate,6,expertise
+decision,6,other
+support,6,other
+java,6,specific skills
+music,6,other
+software,6,expertise
+expertise,6,other
+infrastructure,5,work related
+investigate,5,buzzwords
+driven,5,other
+applicable,5,other
+insight,5,buzzwords
+credit,5,other
+mapreduce,5,specific skills
+development,5,expertise
+expert,5,buzzwords
+degree,5,other
+drive,5,other
+performance,5,work related
+advertising,5,other
+fast,5,other
+predict,5,buzzwords
+analyze,5,other
+training,5,other
+video,5,other
+cluster,4,specific skills
+graph,4,expertise
+tableau,4,specific skills
+relational,4,expertise
+data processing,4,expertise
+test,4,expertise
+real-time,4,other
+relationship,4,other
+collection,4,other
+improve,4,other
+operation,4,work related
+dashboard,4,expertise
+target,4,other
+platform,4,expertise
+focus,4,other
+benchmark,4,buzzwords
+learning,4,other
+proficient,4,other
+written,4,other
+maintain,4,other
